@@ -36,6 +36,8 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
+import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
+import com.orientechnologies.orient.core.serialization.serializer.record.binary.OVarIntSerializer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.Change;
 
 import java.util.*;
@@ -394,14 +396,26 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
 
   @Override
   public int getSerializedSize() {
-    int size;
+    //want to have just small in memory bye array to count final size
+    //element by element. Max length of element is 10 bytes (long)
+    byte[] tmpBytes = new byte[10];
+    BytesContainer container = new BytesContainer(tmpBytes);    
+    int retSize = 0;
+    OVarIntSerializer.write(container, this.size);
+    retSize += container.offset;
+    container.offset = 0;
+    
+    //now serialize all elements
+    for (int i = 0; i < this.size; i++){
+      if (entries[i] instanceof OIdentifiable){
+        OIdentifiable entry = (OIdentifiable)entries[i];
+        size += OLinkSerializer.INSTANCE.serialize(entry, tmpBytes, 0);
+      }
+    }
 
-    size = OIntegerSerializer.INT_SIZE;
-
-    size += this.size * OLinkSerializer.RID_SIZE;
-
-    return size;
+    return retSize;
   }
+    
 
   @Override
   public int getSerializedSize(byte[] stream, int offset) {
@@ -410,8 +424,11 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
 
   @Override
   public int serialize(byte[] stream, int offset, UUID ownerUuid) {
-    OIntegerSerializer.INSTANCE.serializeLiteral(size, stream, offset);
-    offset += OIntegerSerializer.INT_SIZE;
+    BytesContainer container = new BytesContainer(stream);
+    container.offset = offset;
+//    OIntegerSerializer.INSTANCE.serializeLiteral(size, stream, offset);
+    OVarIntSerializer.write(container, size);
+//    offset += OIntegerSerializer.INT_SIZE;
     ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     final int totEntries = entries.length;
     for (int i = 0; i < totEntries; ++i) {
@@ -434,7 +451,7 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
       }
     }
 
-    return offset;
+    return container.offset;
   }
 
   @Override
