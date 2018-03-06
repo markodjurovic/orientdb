@@ -33,6 +33,7 @@ import com.orientechnologies.orient.core.db.record.OMultiValueChangeListener;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBagDelegate;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
@@ -395,39 +396,20 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
   }
 
   @Override
-  public int getSerializedSize() {
-    //want to have just small in memory bye array to count final size
-    //element by element. Max length of element is 10 bytes (long)
-    byte[] tmpBytes = new byte[10];
-    BytesContainer container = new BytesContainer(tmpBytes);    
-    int retSize = 0;
-    OVarIntSerializer.write(container, this.size);
-    retSize += container.offset;
-    container.offset = 0;
-    
-    //now serialize all elements
-    for (int i = 0; i < this.size; i++){
-      if (entries[i] instanceof OIdentifiable){
-        OIdentifiable entry = (OIdentifiable)entries[i];
-        size += OLinkSerializer.INSTANCE.serialize(entry, tmpBytes, 0);
-      }
-    }
-
-    return retSize;
+  public int getSerializedSize() {    
+    return 1;
   }
     
 
-  @Override
-  public int getSerializedSize(byte[] stream, int offset) {
-    return OIntegerSerializer.INSTANCE.deserializeLiteral(stream, offset) * OLinkSerializer.RID_SIZE + OIntegerSerializer.INT_SIZE;
-  }
+//  @Override
+//  public int getSerializedSize(byte[] stream, int offset) {
+//    return OIntegerSerializer.INSTANCE.deserializeLiteral(stream, offset) * OLinkSerializer.RID_SIZE + OIntegerSerializer.INT_SIZE;
+//  }
 
   @Override
-  public int serialize(byte[] stream, int offset, UUID ownerUuid) {
-    BytesContainer container = new BytesContainer(stream);
-    container.offset = offset;
+  public int serialize(BytesContainer bytes, UUID ownerUuid) {        
 //    OIntegerSerializer.INSTANCE.serializeLiteral(size, stream, offset);
-    OVarIntSerializer.write(container, size);
+    OVarIntSerializer.write(bytes, size);
 //    offset += OIntegerSerializer.INT_SIZE;
     ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     final int totEntries = entries.length;
@@ -446,23 +428,26 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
           throw new OSerializationException("Found null entry in ridbag with rid=" + rid);
 
         entries[i] = link.getIdentity();
-        OLinkSerializer.INSTANCE.serialize(link, stream, offset);
-        offset += OLinkSerializer.RID_SIZE;
+        OVarIntSerializer.write(bytes, link.getIdentity().getClusterId());
+        OVarIntSerializer.write(bytes, link.getIdentity().getClusterPosition());
       }
     }
 
-    return container.offset;
+    return bytes.offset;
   }
 
   @Override
   public int deserialize(final byte[] stream, int offset) {
-    this.size = OIntegerSerializer.INSTANCE.deserializeLiteral(stream, offset);
-    int entriesSize = OIntegerSerializer.INSTANCE.deserializeLiteral(stream, offset);
-    offset += OIntegerSerializer.INT_SIZE;
+    BytesContainer bytes = new BytesContainer(stream);
+    bytes.offset = offset;
+    this.size = OVarIntSerializer.readAsInteger(bytes);
+    int entriesSize = size;    
 
     for (int i = 0; i < entriesSize; i++) {
-      ORID rid = OLinkSerializer.INSTANCE.deserialize(stream, offset);
-      offset += OLinkSerializer.RID_SIZE;
+      short clusterId = OVarIntSerializer.readAsShort(bytes);
+      long clusterPosition = OVarIntSerializer.readAsLong(bytes);
+      
+      ORID rid = new ORecordId(clusterId, clusterPosition);
 
       OIdentifiable identifiable = null;
       if (rid.isTemporary())
@@ -477,7 +462,7 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
         addEntry(identifiable);
     }
 
-    return offset;
+    return bytes.offset;
   }
 
   @Override

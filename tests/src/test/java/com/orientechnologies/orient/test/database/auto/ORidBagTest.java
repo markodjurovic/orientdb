@@ -549,12 +549,21 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     }
     document.save();
 
-    ODocument copy = new ODocument();
-    copy.fromStream(document.toStream());
+    ODocument copy = new ODocument();    
+    byte[] orStream = document.toStream();
+    copy.fromStream(orStream);
+    byte[] copyStream = copy.toStream();
     ORecordInternal.setIdentity(copy, new ORecordId(document.getIdentity()));
     ORecordInternal.setVersion(copy, document.getVersion());
 
-    ORidBag copyRidBag = copy.field("ridBag");
+    ORidBag copyRidBag;
+    try{
+      copyRidBag = copy.field("ridBag");
+    }
+    catch (Exception e){
+      e.printStackTrace();
+      throw e;
+    }
     Assert.assertNotSame(copyRidBag, ridBag);
 
     copyRidBag.add(new ORecordId("#77:11"));
