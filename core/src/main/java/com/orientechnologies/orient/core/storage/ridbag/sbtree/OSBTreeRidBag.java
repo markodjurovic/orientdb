@@ -676,7 +676,8 @@ public class OSBTreeRidBag implements ORidBagDelegate {
     bytes.offset += OIntegerSerializer.INT_SIZE;
 
     if (context == null) {
-      ChangeSerializationHelper.INSTANCE.serializeChanges(changes, OLinkSerializer.INSTANCE, bytes.bytes, bytes.offset);
+      int newOffset = ChangeSerializationHelper.INSTANCE.serializeChanges(changes, OLinkSerializer.INSTANCE, bytes.bytes, bytes.offset);
+      bytes.offset = newOffset;
     } else {
 
       ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
