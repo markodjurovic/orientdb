@@ -21,6 +21,7 @@
 package com.orientechnologies.orient.core.serialization.serializer.record.binary;
 
 import com.orientechnologies.common.collection.OMultiValue;
+import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.serialization.types.ODecimalSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
@@ -727,8 +728,11 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
       bytes.skip(ODecimalSerializer.INSTANCE.getObjectSize(bytes.bytes, bytes.offset));
       break;
     case LINKBAG:
+      OLogManager.instance().info(this, "Deserialize RIDBAG V0");
       ORidBag bag = new ORidBag();
+      int startOffset = bytes.offset;
       bag.fromStream(bytes);
+      OLogManager.instance().info(this, "Deserializing V0 size: " + (bytes.offset - startOffset));
       bag.setOwner(ownerDocument);
       value = bag;
       break;
@@ -1002,7 +1006,11 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
       pointer = writeEmbeddedMap(bytes, (Map<Object, Object>) value);
       break;
     case LINKBAG:
-      pointer = ((ORidBag) value).toStream(bytes);
+      int currOffset = bytes.offset;
+      ORidBag ridbag = (ORidBag) value;
+      pointer = ridbag.toStream(bytes);
+      OLogManager.instance().info(this, "RIDBAG size V0: " + (bytes.offset - currOffset));
+      OLogManager.instance().info(this, "RIDBAG class: " + ridbag.getClass().getName());
       break;
     case CUSTOM:
       if (!(value instanceof OSerializableStream))

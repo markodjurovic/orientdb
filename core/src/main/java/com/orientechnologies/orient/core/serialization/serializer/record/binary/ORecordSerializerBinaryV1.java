@@ -608,8 +608,11 @@ public class ORecordSerializerBinaryV1 extends ORecordSerializerBinaryV0{
       pointer = writeEmbeddedMap(bytes, (Map<Object, Object>) value);
       break;
     case LINKBAG:
+      int currOffset = bytes.offset;
       ORidBag ridbag = ((ORidBag) value);
       pointer = writeRidBag(bytes, ridbag);
+      OLogManager.instance().info(this, "RIDBAG size V1: " + (bytes.offset - currOffset));
+      OLogManager.instance().info(this, "RIDBAG class: " + ridbag.getClass().getName());
       break;
     case CUSTOM:
       if (!(value instanceof OSerializableStream))
@@ -738,7 +741,10 @@ public class ORecordSerializerBinaryV1 extends ORecordSerializerBinaryV0{
       bytes.skip(ODecimalSerializer.INSTANCE.getObjectSize(bytes.bytes, bytes.offset));
       break;
     case LINKBAG:
+      OLogManager.instance().info(this, "Deserialize RIDBAG V1");
+      int startOffset = bytes.offset;
       ORidBag bag = readRidbag(bytes);
+      OLogManager.instance().info(this, "Deserializing V1 size: " + (bytes.offset - startOffset));
       bag.setOwner(ownerDocument);
       value = bag;
       break;
