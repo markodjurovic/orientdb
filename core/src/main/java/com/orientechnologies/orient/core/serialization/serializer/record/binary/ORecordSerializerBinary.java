@@ -21,6 +21,7 @@
 package com.orientechnologies.orient.core.serialization.serializer.record.binary;
 
 import com.orientechnologies.common.log.OLogManager;
+import com.orientechnologies.common.profiler.DebugInfo;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -126,7 +127,9 @@ public class ORecordSerializerBinary implements ORecordSerializer {
       // SERIALIZE RECORD
       serializerByVersion[currentSerializerVersion].serialize((ODocument) iSource, container, false);
 
-      return container.fitBytes();
+      byte[] result = container.fitBytes();
+      DebugInfo.recordsSize += result.length;
+      return result;
     }
   }  
   

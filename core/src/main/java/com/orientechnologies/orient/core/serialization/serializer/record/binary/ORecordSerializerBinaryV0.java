@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core.serialization.serializer.record.binary
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.log.OLogManager;
+import com.orientechnologies.common.profiler.DebugInfo;
 import com.orientechnologies.common.serialization.types.ODecimalSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
@@ -1009,8 +1010,10 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
       int currOffset = bytes.offset;
       ORidBag ridbag = (ORidBag) value;
       pointer = ridbag.toStream(bytes);
-      OLogManager.instance().info(this, "RIDBAG size V0: " + (bytes.offset - currOffset));
-      OLogManager.instance().info(this, "RIDBAG class: " + ridbag.getClass().getName());
+      int diff = bytes.offset - currOffset;
+      DebugInfo.ridbagsSize += diff;
+//      OLogManager.instance().info(this, "RIDBAG size V0: " + diff);
+//      OLogManager.instance().info(this, "RIDBAG class: " + ridbag.getDelegate().getClass().getName());
       break;
     case CUSTOM:
       if (!(value instanceof OSerializableStream))

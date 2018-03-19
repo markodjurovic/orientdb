@@ -18,6 +18,7 @@ package com.orientechnologies.orient.core.storage.impl.local.paginated;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.log.OLogManager;
+import com.orientechnologies.common.profiler.DebugInfo;
 import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
@@ -472,6 +473,7 @@ public class OPaginatedCluster extends ODurableComponent implements OCluster {
       acquireExclusiveLock();
       try {
         int entryContentLength = getEntryContentLength(content.length);
+        DebugInfo.entryLength += entryContentLength;
 
         if (entryContentLength < OClusterPage.MAX_RECORD_SIZE) {
           try {
