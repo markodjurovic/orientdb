@@ -461,6 +461,8 @@ public class OPaginatedCluster extends ODurableComponent implements OCluster {
   @Override
   public OPhysicalPosition createRecord(byte[] content, final int recordVersion, final byte recordType,
       OPhysicalPosition allocatedPosition) throws IOException {
+    DebugInfo.recordsSize_fromCluster += content.length;
+    
     startOperation();
     OSessionStoragePerformanceStatistic statistic = performanceStatisticManager.getSessionPerformanceStatistic();
     if (statistic != null)
