@@ -62,6 +62,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.orientechnologies.orient.core.db.document.ODatabaseDocumentTxInternal.closeAllOnShutdown;
+import com.orientechnologies.orient.core.serialization.serializer.record.binary.OResultBinary;
 
 /**
  * Created by tglman on 20/07/16.
@@ -244,6 +245,16 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
     return internal.callbackHooks(type, id);
   }
 
+  @Override
+  public OResultBinary executeReadRecordFetchBinary(ORecordId rid, ORecord iRecord, int recordVersion, String fetchPlan,
+      boolean ignoreCache, boolean iUpdateCache, boolean loadTombstones, OStorage.LOCKING_STRATEGY lockingStrategy,
+      RecordReader recordReader) {
+    checkOpenness();
+    return internal
+        .executeReadRecordFetchBinary(rid, iRecord, recordVersion, fetchPlan, ignoreCache, iUpdateCache, loadTombstones, lockingStrategy,
+            recordReader);
+  }
+  
   @Override
   public <RET extends ORecord> RET executeReadRecord(ORecordId rid, ORecord iRecord, int recordVersion, String fetchPlan,
       boolean ignoreCache, boolean iUpdateCache, boolean loadTombstones, OStorage.LOCKING_STRATEGY lockingStrategy,
@@ -1522,5 +1533,17 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   @Override
   public void afterUpdateOperations(OIdentifiable id) {
     internal.afterUpdateOperations(id);
+  }
+
+  @Override
+  public OResultBinary loadBInary(ORID iRecordId, String iFetchPlan, boolean iIgnoreCache, boolean iUpdateCache, boolean loadTombstone, OStorage.LOCKING_STRATEGY iLockingStrategy) {
+    checkOpenness();
+    return internal.loadBInary(iRecordId, iFetchPlan, iIgnoreCache, iUpdateCache, loadTombstone, iLockingStrategy);
+  }
+
+  @Override
+  public OResultBinary loadBInary(ORecord iObject, String iFetchPlan, boolean iIgnoreCache, boolean iUpdateCache, boolean loadTombstone, OStorage.LOCKING_STRATEGY iLockingStrategy) {
+    checkOpenness();
+    return internal.loadBInary(iObject, iFetchPlan, iIgnoreCache, iUpdateCache, loadTombstone, iLockingStrategy);
   }
 }

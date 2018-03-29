@@ -38,6 +38,7 @@ import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODirtyManager;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.serialization.serializer.record.binary.OResultBinary;
 import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges.OPERATION;
@@ -80,6 +81,34 @@ public class OTransactionNoTx extends OTransactionAbstract {
   public void rollback() {
   }
 
+  public OResultBinary loadRecordBinary(final ORID iRid, final ORecord iRecord, final String iFetchPlan, final boolean ignoreCache,
+      final boolean loadTombstone, final OStorage.LOCKING_STRATEGY iLockingStrategy){
+    if (iRid.isNew())
+      return null;
+
+    return database
+        .executeReadRecordFetchBinary((ORecordId) iRid, iRecord, -1, iFetchPlan, ignoreCache, !ignoreCache, loadTombstone, iLockingStrategy,
+            new SimpleRecordReader(database.isPrefetchRecords()));
+  }
+  
+  public OResultBinary loadRecordBinary(final ORID iRid, final ORecord iRecord, final String iFetchPlan, final boolean ignoreCache,
+      final boolean iUpdateCache, final boolean loadTombstone, final OStorage.LOCKING_STRATEGY iLockingStrategy) {
+    if (iRid.isNew())
+      return null;
+
+    return database
+        .executeReadRecordFetchBinary((ORecordId) iRid, iRecord, -1, iFetchPlan, ignoreCache, iUpdateCache, loadTombstone, iLockingStrategy,
+            new SimpleRecordReader(database.isPrefetchRecords()));
+  }
+
+  public OResultBinary loadRecordBinary(final ORID iRid, final ORecord iRecord, final String iFetchPlan, final boolean ignoreCache) {
+    if (iRid.isNew())
+      return null;
+
+    return database.executeReadRecordFetchBinary((ORecordId) iRid, iRecord, -1, iFetchPlan, ignoreCache, !ignoreCache, false,
+        OStorage.LOCKING_STRATEGY.NONE, new SimpleRecordReader(database.isPrefetchRecords()));
+  }
+  
   @Deprecated
   public ORecord loadRecord(final ORID iRid, final ORecord iRecord, final String iFetchPlan, final boolean ignoreCache,
       final boolean loadTombstone, final OStorage.LOCKING_STRATEGY iLockingStrategy) {

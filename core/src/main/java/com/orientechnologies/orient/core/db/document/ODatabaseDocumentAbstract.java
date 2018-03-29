@@ -61,6 +61,8 @@ import com.orientechnologies.orient.core.record.impl.*;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
+import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerBinary;
+import com.orientechnologies.orient.core.serialization.serializer.record.binary.OResultBinary;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.*;
 import com.orientechnologies.orient.core.storage.impl.local.OFreezableStorageComponent;
@@ -1244,6 +1246,108 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     return prefetchRecords;
   }
 
+  
+  @Override
+  public OResultBinary executeReadRecordFetchBinary(final ORecordId rid, ORecord iRecord, final int recordVersion,
+      final String fetchPlan, final boolean ignoreCache, final boolean iUpdateCache, final boolean loadTombstones,
+      final OStorage.LOCKING_STRATEGY lockingStrategy, RecordReader recordReader) {
+    checkOpenness();
+    checkIfActive();
+
+    getMetadata().makeThreadLocalSchemaSnapshot();
+    ORecordSerializationContext.pushContext();
+    try {
+      checkSecurity(ORule.ResourceGeneric.CLUSTER, ORole.PERMISSION_READ, getClusterNameById(rid.getClusterId()));
+
+      // either regular or micro tx must be active or both inactive
+      assert !(getTransaction().isActive() && (microTransaction != null && microTransaction.isActive()));
+
+      // SEARCH IN LOCAL TX
+      ORecord record = getTransaction().getRecord(rid);
+      if (record == OBasicTransaction.DELETED_RECORD)
+        // DELETED IN TX
+        return null;
+
+      if (record == null) {
+        if (microTransaction != null && microTransaction.isActive()) {
+          record = microTransaction.getRecord(rid);
+          if (record == OBasicTransaction.DELETED_RECORD)
+            return null;
+        }
+      }
+
+      if (record == null && !ignoreCache)
+        // SEARCH INTO THE CACHE
+        record = getLocalCache().findRecord(rid);
+
+      if (record != null) {
+        if (iRecord != null) {
+          iRecord.fromStream(record.toStream());
+          ORecordInternal.setVersion(iRecord, record.getVersion());
+          record = iRecord;
+        }
+
+        OFetchHelper.checkFetchPlanValid(fetchPlan);
+        if (callbackHooks(ORecordHook.TYPE.BEFORE_READ, record) == ORecordHook.RESULT.SKIP)
+          return null;
+
+        if (record.getInternalStatus() == ORecordElement.STATUS.NOT_LOADED)
+          record.reload();
+
+        if (lockingStrategy == OStorage.LOCKING_STRATEGY.KEEP_SHARED_LOCK) {
+          OLogManager.instance()
+              .warn(this, "You use deprecated record locking strategy: %s it may lead to deadlocks " + lockingStrategy);
+          record.lock(false);
+
+        } else if (lockingStrategy == OStorage.LOCKING_STRATEGY.KEEP_EXCLUSIVE_LOCK) {
+          OLogManager.instance()
+              .warn(this, "You use deprecated record locking strategy: %s it may lead to deadlocks " + lockingStrategy);
+          record.lock(true);
+        }
+
+        callbackHooks(ORecordHook.TYPE.AFTER_READ, record);
+        if (record instanceof ODocument)
+          ODocumentInternal.checkClass((ODocument) record, this);
+        ORecordSerializerBinary serializer = new ORecordSerializerBinary();
+        byte[] serialized = serializer.toStream(record, false);
+        return new OResultBinary(serialized, 0, serialized.length, serializer.getCurrentVersion());
+      }
+
+      final ORawBuffer recordBuffer;
+      int detectedREcordVersion = recordVersion;
+      if (!rid.isValid()){
+        recordBuffer = null;
+      }
+      else {
+        OFetchHelper.checkFetchPlanValid(fetchPlan);
+
+        int version;
+        if (iRecord != null)
+          version = iRecord.getVersion();
+        else
+          version = recordVersion;
+
+        detectedREcordVersion = version;
+        recordBuffer = recordReader.readRecord(getStorage(), rid, fetchPlan, ignoreCache, version);                
+      }
+            
+      return recordBuffer == null ? null : new OResultBinary(recordBuffer.buffer, 0, recordBuffer.buffer.length, detectedREcordVersion);
+    } catch (OOfflineClusterException | ORecordNotFoundException t) {
+      throw t;
+    } catch (Exception t) {
+      if (rid.isTemporary())
+        throw OException.wrapException(new ODatabaseException("Error on retrieving record using temporary RID: " + rid), t);
+      else
+        throw OException.wrapException(new ODatabaseException(
+            "Error on retrieving record " + rid + " (cluster: " + getStorage().getPhysicalClusterNameById(rid.getClusterId())
+                + ")"), t);
+    } finally {
+      ORecordSerializationContext.pullContext();
+      getMetadata().clearThreadLocalSchemaSnapshot();
+    }
+  }
+  
+  
   /**
    * This method is internal, it can be subject to signature change or be removed, do not use.
    *
@@ -2735,5 +2839,18 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     if (clazz != null && clazz.isVertexType())
       return true;
     return false;
+  }
+  
+  @Override
+  public OResultBinary loadBInary(ORID iRecordId, String iFetchPlan, boolean iIgnoreCache, boolean iUpdateCache, boolean loadTombstone, OStorage.LOCKING_STRATEGY iLockingStrategy) {
+    checkIfActive();
+    return currentTx.loadRecordBinary(iRecordId, null, iFetchPlan, iIgnoreCache, iUpdateCache, loadTombstone, iLockingStrategy);
+  }
+
+  @Override
+  public OResultBinary loadBInary(ORecord iRecord, String iFetchPlan, boolean iIgnoreCache, boolean iUpdateCache, boolean loadTombstone, OStorage.LOCKING_STRATEGY iLockingStrategy) {
+    checkIfActive();
+    return currentTx
+        .loadRecordBinary(iRecord.getIdentity(), iRecord, iFetchPlan, iIgnoreCache, iUpdateCache, loadTombstone, iLockingStrategy);
   }
 }

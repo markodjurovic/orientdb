@@ -40,6 +40,7 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.query.OQuery;
+import com.orientechnologies.orient.core.serialization.serializer.record.binary.OResultBinary;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.ORecordCallback;
@@ -606,6 +607,13 @@ public interface ODatabase<T> extends OBackupable, Closeable {
    *
    * @deprecated Usage of this method may lead to deadlocks.
    */
+  
+  OResultBinary loadBInary(ORID iRecordId, String iFetchPlan, boolean iIgnoreCache, boolean iUpdateCache, boolean loadTombstone,
+      OStorage.LOCKING_STRATEGY iLockingStrategy);
+  
+  OResultBinary loadBInary(T iObject, String iFetchPlan, boolean iIgnoreCache, boolean iUpdateCache, boolean loadTombstone,
+      OStorage.LOCKING_STRATEGY iLockingStrategy);
+  
   @Deprecated
   <RET extends T> RET load(T iObject, String iFetchPlan, boolean iIgnoreCache, boolean iUpdateCache, boolean loadTombstone,
       OStorage.LOCKING_STRATEGY iLockingStrategy);
