@@ -91,6 +91,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
             new SimpleRecordReader(database.isPrefetchRecords()));
   }
   
+  @Override
   public OResultBinary loadRecordBinary(final ORID iRid, final ORecord iRecord, final String iFetchPlan, final boolean ignoreCache,
       final boolean iUpdateCache, final boolean loadTombstone, final OStorage.LOCKING_STRATEGY iLockingStrategy) {
     if (iRid.isNew())

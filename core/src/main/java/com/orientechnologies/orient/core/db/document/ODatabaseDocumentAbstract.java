@@ -1263,6 +1263,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       assert !(getTransaction().isActive() && (microTransaction != null && microTransaction.isActive()));
 
       // SEARCH IN LOCAL TX
+      //TODO rearrange cache and transactions that can operate with byte[] instead os ORecord
       ORecord record = getTransaction().getRecord(rid);
       if (record == OBasicTransaction.DELETED_RECORD)
         // DELETED IN TX

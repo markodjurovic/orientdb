@@ -42,6 +42,7 @@ import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODirtyManager;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerBinary;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OResultBinary;
 import com.orientechnologies.orient.core.storage.OBasicTransaction;
 import com.orientechnologies.orient.core.storage.ORecordCallback;
@@ -577,33 +578,11 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
 
   @Override
   public OResultBinary loadRecordBinary(ORID rid, ORecord iRecord, String fetchPlan, boolean ignoreCache, boolean iUpdateCache, boolean loadTombstone, OStorage.LOCKING_STRATEGY lockingStrategy) {
-    checkTransaction();
-
-    final OResultBinary txRecord = getRecordBInary(rid);
-    if (txRecord == OBasicTransaction.DELETED_RECORD)
-      // DELETED IN TX
-      return null;
-
-    if (txRecord != null) {
-      if (iRecord != null && txRecord != iRecord)
-        OLogManager.instance().warn(this, "Found record in transaction with the same RID %s but different instance. "
-            + "Probably the record has been loaded from another transaction and reused on the current one: reload it "
-            + "from current transaction before to update or delete it", iRecord.getIdentity());
-      return txRecord;
-    }
-
-    if (rid.isTemporary())
-      return null;
-
-    // DELEGATE TO THE STORAGE, NO TOMBSTONES SUPPORT IN TX MODE
-    final OResultBinary record = database
-        .executeReadRecordFetchBinary((ORecordId) rid, iRecord, -1, fetchPlan, ignoreCache, iUpdateCache, loadTombstone, lockingStrategy,
-            new SimpleRecordReader(database.isPrefetchRecords()));
-
-    if (record != null && isolationLevel == ISOLATION_LEVEL.REPEATABLE_READ)
-      // KEEP THE RECORD IN TX TO ASSURE REPEATABLE READS
-      addRecord(record, ORecordOperation.LOADED, null);
-
-    return record;
+    //TODO do it work natively with byte[]
+    ORecord record = loadRecord(rid, iRecord, fetchPlan, ignoreCache, iUpdateCache, loadTombstone, lockingStrategy);
+    ORecordSerializerBinary serializer = new ORecordSerializerBinary();
+    byte[] stream = serializer.toStream(record, false);
+    OResultBinary res = new OResultBinary(stream, 0, stream.length, serializer.getCurrentVersion());
+    return res;
   }
 }
