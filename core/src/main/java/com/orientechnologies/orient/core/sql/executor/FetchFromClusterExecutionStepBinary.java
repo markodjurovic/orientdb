@@ -252,7 +252,7 @@ public class FetchFromClusterExecutionStepBinary extends AbstractExecutionStep {
 
   @Override
   public OExecutionStep copy(OCommandContext ctx) {
-    FetchFromClusterExecutionStep result = new FetchFromClusterExecutionStep(this.clusterId,
+    FetchFromClusterExecutionStepBinary result = new FetchFromClusterExecutionStepBinary(this.clusterId,
         this.queryPlanning == null ? null : this.queryPlanning.copy(), ctx, profilingEnabled);
     return result;
   }

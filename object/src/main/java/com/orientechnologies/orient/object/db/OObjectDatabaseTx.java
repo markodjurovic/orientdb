@@ -1259,4 +1259,9 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
   public OResultBinary loadBInary(Object iObject, String iFetchPlan, boolean iIgnoreCache, boolean iUpdateCache, boolean loadTombstone, OStorage.LOCKING_STRATEGY iLockingStrategy) {
     throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
   }
+
+  @Override
+  public OResultBinary loadBinary(ORID recordId) {
+    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+  }
 }
