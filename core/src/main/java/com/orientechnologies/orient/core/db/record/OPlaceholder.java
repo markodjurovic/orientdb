@@ -24,6 +24,7 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.serialization.OStreamable;
+import com.orientechnologies.orient.core.serialization.serializer.record.binary.OResultBinary;
 import com.orientechnologies.orient.core.storage.OStorage;
 
 import java.io.DataInput;
@@ -132,5 +133,10 @@ public class OPlaceholder implements OIdentifiable, OStreamable {
   @Override
   public void unlock() {
     ODatabaseRecordThreadLocal.instance().get().getTransaction().unlockRecord(this);
+  }
+
+  @Override
+  public OResultBinary getRecordBinary() {
+    return rid.getRecordBinary();
   }
 }

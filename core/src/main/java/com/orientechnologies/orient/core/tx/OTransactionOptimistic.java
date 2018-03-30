@@ -585,4 +585,14 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
     OResultBinary res = new OResultBinary(stream, 0, stream.length, serializer.getCurrentVersion());
     return res;
   }
+
+  public OResultBinary loadRecordBinary(final ORID rid, final ORecord iRecord, final String fetchPlan, final boolean ignoreCache,
+      final boolean loadTombstone, final OStorage.LOCKING_STRATEGY lockingStrategy) {
+    return loadRecordBinary(rid, iRecord, fetchPlan, ignoreCache, true, loadTombstone, lockingStrategy);
+  }
+  
+  @Override
+  public OResultBinary loadRecordBinary(ORID iRid, ORecord iRecord, String iFetchPlan, boolean ignoreCache) {
+    return loadRecordBinary(iRid, iRecord, iFetchPlan, ignoreCache, false, OStorage.LOCKING_STRATEGY.NONE);
+  }
 }

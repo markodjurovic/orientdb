@@ -31,6 +31,7 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODirtyManager;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
+import com.orientechnologies.orient.core.serialization.serializer.record.binary.OResultBinary;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerJSON;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.OOfflineClusterException;
@@ -546,6 +547,11 @@ public abstract class ORecordAbstract implements ORecord {
 
   protected void unTrack(OIdentifiable id) {
     this.getDirtyManager().unTrack(this, id);
+  }
+  
+  @Override
+  public OResultBinary getRecordBinary() {
+    return _recordId.getRecordBinary();
   }
 
 }

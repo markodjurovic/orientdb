@@ -31,6 +31,7 @@ import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.serialization.OBinaryProtocol;
 import com.orientechnologies.orient.core.serialization.OMemoryStream;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
+import com.orientechnologies.orient.core.serialization.serializer.record.binary.OResultBinary;
 import com.orientechnologies.orient.core.storage.OStorage;
 
 public class ORecordId implements ORID {
@@ -317,6 +318,7 @@ public class ORecordId implements ORID {
   }
 
   @SuppressWarnings("unchecked")
+  @Override
   public <T extends ORecord> T getRecord() {
     if (!isValid())
       return null;
@@ -327,6 +329,18 @@ public class ORecordId implements ORID {
           "No database found in current thread local space. If you manually control databases over threads assure to set the current database before to use it by calling: ODatabaseRecordThreadLocal.instance().set(db);");
 
     return (T) db.load(this);
+  }
+  
+  public OResultBinary getRecordBinary() {
+    if (!isValid())
+      return null;
+
+    final ODatabaseDocument db = ODatabaseRecordThreadLocal.instance().get();
+    if (db == null)
+      throw new ODatabaseException(
+          "No database found in current thread local space. If you manually control databases over threads assure to set the current database before to use it by calling: ODatabaseRecordThreadLocal.instance().set(db);");
+
+    return db.load(this);
   }
 
   private void checkClusterLimits() {

@@ -1206,7 +1206,7 @@ public class OrientVertex extends OrientElement implements OrientExtendedVertex 
       result[i] = type[i].getName();
     }
     return result;
-  }
+  }  
 
 
 

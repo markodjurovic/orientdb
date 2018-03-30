@@ -38,6 +38,7 @@ import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
+import com.orientechnologies.orient.core.serialization.serializer.record.binary.OResultBinary;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Element;
@@ -715,5 +716,10 @@ import java.util.Map;
       }
     }
     return (T) this;
+  }
+  
+  @Override
+  public OResultBinary getRecordBinary() {
+    return rawElement.getRecordBinary();
   }
 }

@@ -614,6 +614,8 @@ public interface ODatabase<T> extends OBackupable, Closeable {
   OResultBinary loadBInary(T iObject, String iFetchPlan, boolean iIgnoreCache, boolean iUpdateCache, boolean loadTombstone,
       OStorage.LOCKING_STRATEGY iLockingStrategy);
   
+  OResultBinary loadBinary(ORID recordId);
+  
   @Deprecated
   <RET extends T> RET load(T iObject, String iFetchPlan, boolean iIgnoreCache, boolean iUpdateCache, boolean loadTombstone,
       OStorage.LOCKING_STRATEGY iLockingStrategy);

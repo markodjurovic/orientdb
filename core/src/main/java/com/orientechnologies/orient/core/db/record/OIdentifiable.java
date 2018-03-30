@@ -23,6 +23,7 @@ import java.util.Comparator;
 
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.serialization.serializer.record.binary.OResultBinary;
 import com.orientechnologies.orient.core.storage.OStorage;
 
 /**
@@ -45,6 +46,8 @@ public interface OIdentifiable extends Comparable<OIdentifiable>, Comparator<OId
    * @return ORecord instance
    */
   <T extends ORecord> T getRecord();
+  
+  OResultBinary getRecordBinary();
 
   void lock(boolean iExclusive);
 

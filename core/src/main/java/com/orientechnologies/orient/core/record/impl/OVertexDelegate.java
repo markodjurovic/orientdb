@@ -37,6 +37,7 @@ import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.*;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
+import com.orientechnologies.orient.core.serialization.serializer.record.binary.OResultBinary;
 import com.orientechnologies.orient.core.storage.OStorage;
 
 import java.util.*;
@@ -887,5 +888,10 @@ public class OVertexDelegate implements OVertex {
       return element.toString();
     }
     return super.toString();
+  }
+  
+  @Override
+  public OResultBinary getRecordBinary() {
+    return element.getRecordBinary();
   }
 }

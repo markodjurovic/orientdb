@@ -34,6 +34,7 @@ import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
+import com.orientechnologies.orient.core.serialization.serializer.record.binary.OResultBinary;
 import com.orientechnologies.orient.core.storage.OStorage;
 
 import java.util.HashSet;
@@ -553,5 +554,10 @@ public class OEdgeDelegate implements OEdge {
       result.append("} (lightweight)");
       return result.toString();
     }
+  }
+
+  @Override
+  public OResultBinary getRecordBinary() {
+    return element.getRecordBinary();
   }
 }

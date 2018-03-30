@@ -81,6 +81,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
   public void rollback() {
   }
 
+  @Override
   public OResultBinary loadRecordBinary(final ORID iRid, final ORecord iRecord, final String iFetchPlan, final boolean ignoreCache,
       final boolean loadTombstone, final OStorage.LOCKING_STRATEGY iLockingStrategy){
     if (iRid.isNew())
@@ -102,6 +103,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
             new SimpleRecordReader(database.isPrefetchRecords()));
   }
 
+  @Override
   public OResultBinary loadRecordBinary(final ORID iRid, final ORecord iRecord, final String iFetchPlan, final boolean ignoreCache) {
     if (iRid.isNew())
       return null;
@@ -111,6 +113,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
   }
   
   @Deprecated
+  @Override
   public ORecord loadRecord(final ORID iRid, final ORecord iRecord, final String iFetchPlan, final boolean ignoreCache,
       final boolean loadTombstone, final OStorage.LOCKING_STRATEGY iLockingStrategy) {
     if (iRid.isNew())
@@ -122,6 +125,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
   }
 
   @Deprecated
+  @Override
   public ORecord loadRecord(final ORID iRid, final ORecord iRecord, final String iFetchPlan, final boolean ignoreCache,
       final boolean iUpdateCache, final boolean loadTombstone, final OStorage.LOCKING_STRATEGY iLockingStrategy) {
     if (iRid.isNew())
@@ -132,6 +136,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
             new SimpleRecordReader(database.isPrefetchRecords()));
   }
 
+  @Override
   public ORecord loadRecord(final ORID iRid, final ORecord iRecord, final String iFetchPlan, final boolean ignoreCache) {
     if (iRid.isNew())
       return null;
@@ -189,6 +194,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
    * @param iRecordCreatedCallback
    * @param iRecordUpdatedCallback
    */
+  @Override
   public ORecord saveRecord(final ORecord iRecord, final String iClusterName, final OPERATION_MODE iMode, boolean iForceCreate,
       final ORecordCallback<? extends Number> iRecordCreatedCallback, ORecordCallback<Integer> iRecordUpdatedCallback) {
     try {
@@ -297,6 +303,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
   /**
    * Deletes the record.
    */
+  @Override
   public void deleteRecord(final ORecord iRecord, final OPERATION_MODE iMode) {
     if (!iRecord.getIdentity().isPersistent())
       return;
@@ -317,22 +324,27 @@ public class OTransactionNoTx extends OTransactionAbstract {
     }
   }
 
+  @Override
   public Collection<ORecordOperation> getCurrentRecordEntries() {
     return null;
   }
 
+  @Override
   public Collection<ORecordOperation> getRecordOperations() {
     return null;
   }
 
+  @Override
   public List<ORecordOperation> getNewRecordEntriesByClass(final OClass iClass, final boolean iPolymorphic) {
     return null;
   }
 
+  @Override
   public List<ORecordOperation> getNewRecordEntriesByClusterIds(final int[] iIds) {
     return null;
   }
 
+  @Override
   public void clearRecordEntries() {
   }
 
@@ -340,14 +352,17 @@ public class OTransactionNoTx extends OTransactionAbstract {
     return 0;
   }
 
+  @Override
   public ORecord getRecord(final ORID rid) {
     return null;
   }
 
+  @Override
   public ORecordOperation getRecordEntry(final ORID rid) {
     return null;
   }
 
+  @Override
   public boolean isUsingLog() {
     return false;
   }
@@ -362,13 +377,16 @@ public class OTransactionNoTx extends OTransactionAbstract {
     return null;
   }
 
+  @Override
   public void setUsingLog(final boolean useLog) {
   }
 
+  @Override
   public ODocument getIndexChanges() {
     return null;
   }
 
+  @Override
   public void addIndexEntry(final OIndex<?> delegate, final String indexName, final OPERATION status, final Object key,
       final OIdentifiable value) {
     switch (status) {
@@ -391,21 +409,26 @@ public class OTransactionNoTx extends OTransactionAbstract {
     // do nothing
   }
 
+  @Override
   public void clearIndexEntries() {
   }
 
+  @Override
   public OTransactionIndexChanges getIndexChanges(final String iName) {
     return null;
   }
 
+  @Override
   public int getId() {
     return 0;
   }
 
+  @Override
   public List<String> getInvolvedIndexes() {
     return null;
   }
 
+  @Override
   public void updateIdentityAfterCommit(ORID oldRid, ORID newRid) {
   }
 

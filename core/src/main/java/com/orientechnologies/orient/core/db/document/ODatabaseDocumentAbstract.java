@@ -2854,4 +2854,10 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     return currentTx
         .loadRecordBinary(iRecord.getIdentity(), iRecord, iFetchPlan, iIgnoreCache, iUpdateCache, loadTombstone, iLockingStrategy);
   }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public OResultBinary loadBinary(final ORID recordId) {
+    return currentTx.loadRecordBinary(recordId, null, null, false);
+  }
 }

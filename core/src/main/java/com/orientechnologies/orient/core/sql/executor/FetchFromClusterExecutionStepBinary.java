@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.iterator.OBinaryRecordIteratorCluster;
+import com.orientechnologies.orient.core.iterator.ORecordIteratorClusterBinary;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OResultBinary;
 import com.orientechnologies.orient.core.sql.parser.*;
 
@@ -17,7 +17,7 @@ import java.util.Optional;
 /**
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
-public class FetchBinaryFromClusterExecutionStep extends AbstractExecutionStep {
+public class FetchFromClusterExecutionStepBinary extends AbstractExecutionStep {
 
   public static final Object ORDER_ASC  = "ASC";
   public static final Object ORDER_DESC = "DESC";
@@ -26,14 +26,14 @@ public class FetchBinaryFromClusterExecutionStep extends AbstractExecutionStep {
   private int    clusterId;
   private Object order;
 
-  private OBinaryRecordIteratorCluster iterator;
+  private ORecordIteratorClusterBinary iterator;
   private long cost = 0;
 
-  public FetchBinaryFromClusterExecutionStep(int clusterId, OCommandContext ctx, boolean profilingEnabled) {
+  public FetchFromClusterExecutionStepBinary(int clusterId, OCommandContext ctx, boolean profilingEnabled) {
     this(clusterId, null, ctx, profilingEnabled);
   }
 
-  public FetchBinaryFromClusterExecutionStep(int clusterId, QueryPlanningInfo queryPlanning, OCommandContext ctx,
+  public FetchFromClusterExecutionStepBinary(int clusterId, QueryPlanningInfo queryPlanning, OCommandContext ctx,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.clusterId = clusterId;
@@ -48,7 +48,7 @@ public class FetchBinaryFromClusterExecutionStep extends AbstractExecutionStep {
       if (iterator == null) {
         long minClusterPosition = calculateMinClusterPosition();
         long maxClusterPosition = calculateMaxClusterPosition();
-        iterator = new OBinaryRecordIteratorCluster((ODatabaseDocumentInternal) ctx.getDatabase(),
+        iterator = new ORecordIteratorClusterBinary((ODatabaseDocumentInternal) ctx.getDatabase(),
             (ODatabaseDocumentInternal) ctx.getDatabase(), clusterId, minClusterPosition, maxClusterPosition);
         if (ORDER_DESC == order) {
           iterator.last();
