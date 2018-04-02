@@ -293,7 +293,7 @@ public class ORecordIteratorClusterBinary implements Iterator<OResultBinary>{
         ORecord rec = txEntries.get(currentTxEntryPosition).getRecord();
         ORecordSerializerBinary serializer = new ORecordSerializerBinary();
         byte[] stream = serializer.toStream(rec, false);
-        return new OResultBinary(stream, 0, stream.length, serializer.getCurrentVersion());        
+        return new OResultBinary(stream, 0, stream.length, serializer.getCurrentVersion(), rec.getIdentity());        
       }
     }
     return null;
@@ -548,7 +548,7 @@ public class ORecordIteratorClusterBinary implements Iterator<OResultBinary>{
         OLogManager.instance().error(this, "Error on fetching record during browsing. The record has been skipped", e);
       }
 
-      if (iRecord != null) {
+      if (res != null) {
         browsedRecords++;
         return res;
       }

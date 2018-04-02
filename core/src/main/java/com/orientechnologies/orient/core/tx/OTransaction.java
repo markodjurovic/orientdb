@@ -85,13 +85,13 @@ public interface OTransaction extends OBasicTransaction {
   ORecord loadRecord(ORID iRid, ORecord iRecord, String iFetchPlan, boolean ignoreCache, boolean iUpdateCache,
       boolean loadTombstone, final OStorage.LOCKING_STRATEGY iLockingStrategy);
   
-  OResultBinary loadRecordBinary(ORID iRid, ORecord iRecord, String iFetchPlan, boolean ignoreCache, boolean iUpdateCache,
-      boolean loadTombstone, final OStorage.LOCKING_STRATEGY iLockingStrategy);
+  OResultBinary loadRecordBinary(ORID iRid, String iFetchPlan, boolean ignoreCache, boolean iUpdateCache,
+      boolean loadTombstone, final OStorage.LOCKING_STRATEGY iLockingStrategy, int recordVersion);
   
-  OResultBinary loadRecordBinary(ORID iRid, ORecord iRecord, String iFetchPlan, boolean ignoreCache);
+  OResultBinary loadRecordBinary(ORID iRid, String iFetchPlan, boolean ignoreCache, int recordVersion);
   
-  OResultBinary loadRecordBinary(final ORID rid, final ORecord iRecord, final String fetchPlan, final boolean ignoreCache,
-      final boolean loadTombstone, final OStorage.LOCKING_STRATEGY lockingStrategy);
+  OResultBinary loadRecordBinary(final ORID rid, final String fetchPlan, final boolean ignoreCache,
+      final boolean loadTombstone, final OStorage.LOCKING_STRATEGY lockingStrategy, int recordVersion);
 
   ORecord loadRecord(ORID iRid, ORecord iRecord, String iFetchPlan, boolean ignoreCache);
 

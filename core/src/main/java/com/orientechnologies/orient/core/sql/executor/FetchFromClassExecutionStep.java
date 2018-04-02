@@ -72,20 +72,20 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
     for (int i = 0; i < clusterIds.length; i++) {
       int clusterId = clusterIds[i];
       if (clusterId > 0) {
-        FetchFromClusterExecutionStep step = new FetchFromClusterExecutionStep(clusterId, planningInfo, ctx, profilingEnabled);
+        FetchFromClusterExecutionStepBinary step = new FetchFromClusterExecutionStepBinary(clusterId, planningInfo, ctx, profilingEnabled);
         if (orderByRidAsc) {
-          step.setOrder(FetchFromClusterExecutionStep.ORDER_ASC);
+          step.setOrder(FetchFromClusterExecutionStepBinary.ORDER_ASC);
         } else if (orderByRidDesc) {
-          step.setOrder(FetchFromClusterExecutionStep.ORDER_DESC);
+          step.setOrder(FetchFromClusterExecutionStepBinary.ORDER_DESC);
         }
         getSubSteps().add(step);
       } else {
         //current tx
         FetchTemporaryFromTxStep step = new FetchTemporaryFromTxStep(ctx, className, profilingEnabled);
         if (orderByRidAsc) {
-          step.setOrder(FetchFromClusterExecutionStep.ORDER_ASC);
+          step.setOrder(FetchFromClusterExecutionStepBinary.ORDER_ASC);
         } else if (orderByRidDesc) {
-          step.setOrder(FetchFromClusterExecutionStep.ORDER_DESC);
+          step.setOrder(FetchFromClusterExecutionStepBinary.ORDER_DESC);
         }
         getSubSteps().add(step);
       }

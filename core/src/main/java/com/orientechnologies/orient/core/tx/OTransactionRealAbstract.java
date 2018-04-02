@@ -152,7 +152,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract impl
     ORecord rec = getRecord(rid);
     ORecordSerializerBinary ser = new ORecordSerializerBinary();
     byte[] stream = ser.toStream(rec, false);
-    return new OResultBinary(stream, 0, stream.length, ser.getCurrentVersion());
+    return new OResultBinary(stream, 0, stream.length, ser.getCurrentVersion(), rec.getIdentity());
   }
   
   public ORecord getRecord(final ORID rid) {

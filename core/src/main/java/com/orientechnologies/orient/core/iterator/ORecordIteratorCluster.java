@@ -135,7 +135,7 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
     if (browsedRecords >= totalAvailableRecords)
       return false;
 
-    if (!(current.getClusterPosition() < ORID.CLUSTER_POS_INVALID) && getCurrentEntry() < lastClusterEntry) {
+     if (!(current.getClusterPosition() < ORID.CLUSTER_POS_INVALID) && getCurrentEntry() < lastClusterEntry) {
       ORecord record = getRecord();
       try {
         currentRecord = readCurrentRecord(record, +1);

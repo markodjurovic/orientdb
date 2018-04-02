@@ -577,22 +577,25 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
   }
 
   @Override
-  public OResultBinary loadRecordBinary(ORID rid, ORecord iRecord, String fetchPlan, boolean ignoreCache, boolean iUpdateCache, boolean loadTombstone, OStorage.LOCKING_STRATEGY lockingStrategy) {
-    //TODO do it work natively with byte[]
-    ORecord record = loadRecord(rid, iRecord, fetchPlan, ignoreCache, iUpdateCache, loadTombstone, lockingStrategy);
-    ORecordSerializerBinary serializer = new ORecordSerializerBinary();
-    byte[] stream = serializer.toStream(record, false);
-    OResultBinary res = new OResultBinary(stream, 0, stream.length, serializer.getCurrentVersion());
-    return res;
+  public OResultBinary loadRecordBinary(ORID rid, String fetchPlan, boolean ignoreCache, boolean iUpdateCache, boolean loadTombstone, OStorage.LOCKING_STRATEGY lockingStrategy, int recordVersion) {
+    throw new UnsupportedOperationException("Not implemented");
+
+//TODO do it work natively with byte[]
+//    ORecord record = loadRecord(rid, iRecord, fetchPlan, ignoreCache, iUpdateCache, loadTombstone, lockingStrategy);
+//    ORecordSerializerBinary serializer = new ORecordSerializerBinary();
+//    byte[] stream = serializer.toStream(record, false);
+//    OResultBinary res = new OResultBinary(stream, 0, stream.length, serializer.getCurrentVersion());
+//    return res;
   }
 
-  public OResultBinary loadRecordBinary(final ORID rid, final ORecord iRecord, final String fetchPlan, final boolean ignoreCache,
-      final boolean loadTombstone, final OStorage.LOCKING_STRATEGY lockingStrategy) {
-    return loadRecordBinary(rid, iRecord, fetchPlan, ignoreCache, true, loadTombstone, lockingStrategy);
+  @Override
+  public OResultBinary loadRecordBinary(final ORID rid, final String fetchPlan, final boolean ignoreCache,
+      final boolean loadTombstone, final OStorage.LOCKING_STRATEGY lockingStrategy, int recordVersion) {
+    return loadRecordBinary(rid, fetchPlan, ignoreCache, true, loadTombstone, lockingStrategy, recordVersion);
   }
   
   @Override
-  public OResultBinary loadRecordBinary(ORID iRid, ORecord iRecord, String iFetchPlan, boolean ignoreCache) {
-    return loadRecordBinary(iRid, iRecord, iFetchPlan, ignoreCache, false, OStorage.LOCKING_STRATEGY.NONE);
+  public OResultBinary loadRecordBinary(ORID iRid, String iFetchPlan, boolean ignoreCache, int recordVersion) {
+    return loadRecordBinary(iRid, iFetchPlan, ignoreCache, false, OStorage.LOCKING_STRATEGY.NONE, recordVersion);
   }
 }

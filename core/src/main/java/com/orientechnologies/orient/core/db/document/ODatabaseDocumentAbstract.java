@@ -724,6 +724,65 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       popInHook(identity);
     }
   }
+  
+  public ORecordHook.RESULT callbackHooksBinary(final ORecordHook.TYPE type, final OResultBinary id) {
+    if (id == null || hooks.isEmpty() || id.getId().getClusterId() == 0)
+      return ORecordHook.RESULT.RECORD_NOT_CHANGED;
+
+    final ORecordHook.SCOPE scope = ORecordHook.SCOPE.typeToScope(type);
+    final int scopeOrdinal = scope.ordinal();
+
+    final ORID identity = id.getId().copy();
+    if (!pushInHook(identity))
+      return ORecordHook.RESULT.RECORD_NOT_CHANGED;
+
+    try {
+      final Optional<ORecord> rec = id.getRecord();
+      if (!rec.isPresent())
+        return ORecordHook.RESULT.RECORD_NOT_CHANGED;
+
+      final OScenarioThreadLocal.RUN_MODE runMode = OScenarioThreadLocal.INSTANCE.getRunMode();
+
+      boolean recordChanged = false;
+      for (ORecordHook hook : hooksByScope[scopeOrdinal]) {
+        switch (runMode) {
+        case DEFAULT: // NON_DISTRIBUTED OR PROXIED DB
+          if (getStorage().isDistributed()
+              && hook.getDistributedExecutionMode() == ORecordHook.DISTRIBUTED_EXECUTION_MODE.TARGET_NODE)
+            // SKIP
+            continue;
+          break; // TARGET NODE
+        case RUNNING_DISTRIBUTED:
+          if (hook.getDistributedExecutionMode() == ORecordHook.DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE)
+            continue;
+        }
+
+        final ORecordHook.RESULT res = hook.onTrigger(type, rec.get());
+
+        if (null != res)
+          switch (res) {
+          case RECORD_CHANGED:
+            recordChanged = true;
+            break;
+          case SKIP_IO:
+            // SKIP IO OPERATION
+            return res;
+          case SKIP:
+            // SKIP NEXT HOOKS AND RETURN IT
+            return res;
+          case RECORD_REPLACED:
+            return res;
+          default:
+            break;
+        }
+      }
+
+      return recordChanged ? ORecordHook.RESULT.RECORD_CHANGED : ORecordHook.RESULT.RECORD_NOT_CHANGED;
+
+    } finally {
+      popInHook(identity);
+    }
+  }
 
   /**
    * {@inheritDoc}
@@ -1248,7 +1307,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
   
   @Override
-  public OResultBinary executeReadRecordFetchBinary(final ORecordId rid, ORecord iRecord, final int recordVersion,
+  public OResultBinary executeReadRecordBinary(final ORecordId rid, final int recordVersion,
       final String fetchPlan, final boolean ignoreCache, final boolean iUpdateCache, final boolean loadTombstones,
       final OStorage.LOCKING_STRATEGY lockingStrategy, RecordReader recordReader) {
     checkOpenness();
@@ -1282,12 +1341,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         record = getLocalCache().findRecord(rid);
 
       if (record != null) {
-        if (iRecord != null) {
-          iRecord.fromStream(record.toStream());
-          ORecordInternal.setVersion(iRecord, record.getVersion());
-          record = iRecord;
-        }
-
         OFetchHelper.checkFetchPlanValid(fetchPlan);
         if (callbackHooks(ORecordHook.TYPE.BEFORE_READ, record) == ORecordHook.RESULT.SKIP)
           return null;
@@ -1311,28 +1364,43 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
           ODocumentInternal.checkClass((ODocument) record, this);
         ORecordSerializerBinary serializer = new ORecordSerializerBinary();
         byte[] serialized = serializer.toStream(record, false);
-        return new OResultBinary(serialized, 0, serialized.length, serializer.getCurrentVersion());
+        return new OResultBinary(serialized, 0, serialized.length, serializer.getCurrentVersion(), rid);
       }
 
       final ORawBuffer recordBuffer;
-      int detectedREcordVersion = recordVersion;
+      int detectedRecordSerializerVersion = -1;
       if (!rid.isValid()){
         recordBuffer = null;
       }
       else {
-        OFetchHelper.checkFetchPlanValid(fetchPlan);
-
-        int version;
-        if (iRecord != null)
-          version = iRecord.getVersion();
-        else
-          version = recordVersion;
-
-        detectedREcordVersion = version;
-        recordBuffer = recordReader.readRecord(getStorage(), rid, fetchPlan, ignoreCache, version);                
+        OFetchHelper.checkFetchPlanValid(fetchPlan);       
+        
+        recordBuffer = recordReader.readRecord(getStorage(), rid, fetchPlan, ignoreCache, recordVersion);
+        detectedRecordSerializerVersion = recordBuffer.buffer[0];
       }
-            
-      return recordBuffer == null ? null : new OResultBinary(recordBuffer.buffer, 0, recordBuffer.buffer.length, detectedREcordVersion);
+      
+      if (recordBuffer == null)
+        return null;      
+
+      OResultBinary res = new OResultBinary(recordBuffer.buffer, 0, recordBuffer.buffer.length, detectedRecordSerializerVersion, rid);
+      
+      if (ORecordVersionHelper.isTombstone(recordBuffer.version))
+        return res;      
+      
+      if (callbackHooksBinary(ORecordHook.TYPE.BEFORE_READ, res) == ORecordHook.RESULT.SKIP)
+        return null;      
+
+      callbackHooksBinary(ORecordHook.TYPE.AFTER_READ, res);
+
+      if (iUpdateCache){
+        ORecord rec = res.getRecord().get();
+
+        if (rec instanceof ODocument)
+          ODocumentInternal.checkClass((ODocument) rec, this);
+        getLocalCache().updateRecord(rec);
+      }
+
+      return res;                  
     } catch (OOfflineClusterException | ORecordNotFoundException t) {
       throw t;
     } catch (Exception t) {
@@ -2845,19 +2913,19 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   @Override
   public OResultBinary loadBInary(ORID iRecordId, String iFetchPlan, boolean iIgnoreCache, boolean iUpdateCache, boolean loadTombstone, OStorage.LOCKING_STRATEGY iLockingStrategy) {
     checkIfActive();
-    return currentTx.loadRecordBinary(iRecordId, null, iFetchPlan, iIgnoreCache, iUpdateCache, loadTombstone, iLockingStrategy);
+    return currentTx.loadRecordBinary(iRecordId, iFetchPlan, iIgnoreCache, iUpdateCache, loadTombstone, iLockingStrategy, -1);
   }
 
   @Override
   public OResultBinary loadBInary(ORecord iRecord, String iFetchPlan, boolean iIgnoreCache, boolean iUpdateCache, boolean loadTombstone, OStorage.LOCKING_STRATEGY iLockingStrategy) {
     checkIfActive();
     return currentTx
-        .loadRecordBinary(iRecord.getIdentity(), iRecord, iFetchPlan, iIgnoreCache, iUpdateCache, loadTombstone, iLockingStrategy);
+        .loadRecordBinary(iRecord.getIdentity(), iFetchPlan, iIgnoreCache, iUpdateCache, loadTombstone, iLockingStrategy, iRecord == null ? -1 : iRecord.getVersion());
   }
   
   @SuppressWarnings("unchecked")
   @Override
   public OResultBinary loadBinary(final ORID recordId) {
-    return currentTx.loadRecordBinary(recordId, null, null, false);
+    return currentTx.loadRecordBinary(recordId, null, false, -1);
   }
 }

@@ -241,12 +241,12 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   }
 
   @Override
-  public OResultBinary executeReadRecordFetchBinary(ORecordId rid, ORecord iRecord, int recordVersion, String fetchPlan,
+  public OResultBinary executeReadRecordBinary(ORecordId rid, int recordVersion, String fetchPlan,
       boolean ignoreCache, boolean iUpdateCache, boolean loadTombstones, OStorage.LOCKING_STRATEGY lockingStrategy,
       RecordReader recordReader) {
     checkOpenness();
     return internal
-        .executeReadRecordFetchBinary(rid, iRecord, recordVersion, fetchPlan, ignoreCache, iUpdateCache, loadTombstones, lockingStrategy,
+        .executeReadRecordBinary(rid, recordVersion, fetchPlan, ignoreCache, iUpdateCache, loadTombstones, lockingStrategy,
             recordReader);
   }
   

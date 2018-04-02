@@ -2216,11 +2216,11 @@ public class OSelectExecutionPlanner {
       if (clusterId == null) {
         throw new OCommandExecutionException("Cluster " + cluster + " does not exist");
       }
-      FetchFromClusterExecutionStep step = new FetchFromClusterExecutionStep(clusterId, ctx, profilingEnabled);
+      FetchFromClusterExecutionStepBinary step = new FetchFromClusterExecutionStepBinary(clusterId, ctx, profilingEnabled);
       if (Boolean.TRUE.equals(orderByRidAsc)) {
-        step.setOrder(FetchFromClusterExecutionStep.ORDER_ASC);
+        step.setOrder(FetchFromClusterExecutionStepBinary.ORDER_ASC);
       } else if (Boolean.FALSE.equals(orderByRidAsc)) {
-        step.setOrder(FetchFromClusterExecutionStep.ORDER_DESC);
+        step.setOrder(FetchFromClusterExecutionStepBinary.ORDER_DESC);
       }
       plan.chain(step);
     } else {

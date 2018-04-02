@@ -100,7 +100,7 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
 
   ORecordHook.RESULT callbackHooks(final ORecordHook.TYPE type, final OIdentifiable id);
 
-  OResultBinary executeReadRecordFetchBinary(final ORecordId rid, ORecord iRecord, final int recordVersion,
+  OResultBinary executeReadRecordBinary(final ORecordId rid, final int recordVersion,
       final String fetchPlan, final boolean ignoreCache, final boolean iUpdateCache, final boolean loadTombstones,
       final OStorage.LOCKING_STRATEGY lockingStrategy, RecordReader recordReader);
   

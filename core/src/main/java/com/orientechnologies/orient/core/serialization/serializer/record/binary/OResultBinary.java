@@ -40,11 +40,12 @@ public class OResultBinary implements OResult{
   private final int serializerVersion;
   private final int fieldLength;
   
-  public OResultBinary(byte[] bytes, int offset, int fieldLength, int serializerVersion){
+  public OResultBinary(byte[] bytes, int offset, int fieldLength, int serializerVersion, ORID rid){
     this.bytes = bytes;
     this.serializerVersion = serializerVersion;
     this.offset = offset;
     this.fieldLength = fieldLength;
+    this.id = rid;
   }
 
   public int getFieldLength() {
@@ -159,7 +160,7 @@ public class OResultBinary implements OResult{
   
   private ODocument toDocument(){
     ODocument doc = new ODocument();
-    ORecordSerializerBinary.INSTANCE.getSerializer(serializerVersion).deserialize(doc, new BytesContainer(bytes));
+    ORecordSerializerBinary.INSTANCE.fromStream(bytes, doc, null);
     return doc;
   }
   

@@ -82,33 +82,33 @@ public class OTransactionNoTx extends OTransactionAbstract {
   }
 
   @Override
-  public OResultBinary loadRecordBinary(final ORID iRid, final ORecord iRecord, final String iFetchPlan, final boolean ignoreCache,
-      final boolean loadTombstone, final OStorage.LOCKING_STRATEGY iLockingStrategy){
+  public OResultBinary loadRecordBinary(final ORID iRid, final String iFetchPlan, final boolean ignoreCache,
+      final boolean loadTombstone, final OStorage.LOCKING_STRATEGY iLockingStrategy, int recordVersion){
     if (iRid.isNew())
       return null;
 
     return database
-        .executeReadRecordFetchBinary((ORecordId) iRid, iRecord, -1, iFetchPlan, ignoreCache, !ignoreCache, loadTombstone, iLockingStrategy,
+        .executeReadRecordBinary((ORecordId) iRid, recordVersion, iFetchPlan, ignoreCache, !ignoreCache, loadTombstone, iLockingStrategy,
             new SimpleRecordReader(database.isPrefetchRecords()));
   }
   
   @Override
-  public OResultBinary loadRecordBinary(final ORID iRid, final ORecord iRecord, final String iFetchPlan, final boolean ignoreCache,
-      final boolean iUpdateCache, final boolean loadTombstone, final OStorage.LOCKING_STRATEGY iLockingStrategy) {
+  public OResultBinary loadRecordBinary(final ORID iRid, final String iFetchPlan, final boolean ignoreCache,
+      final boolean iUpdateCache, final boolean loadTombstone, final OStorage.LOCKING_STRATEGY iLockingStrategy, int recordVersion) {
     if (iRid.isNew())
       return null;
 
     return database
-        .executeReadRecordFetchBinary((ORecordId) iRid, iRecord, -1, iFetchPlan, ignoreCache, iUpdateCache, loadTombstone, iLockingStrategy,
+        .executeReadRecordBinary((ORecordId) iRid, recordVersion, iFetchPlan, ignoreCache, iUpdateCache, loadTombstone, iLockingStrategy,
             new SimpleRecordReader(database.isPrefetchRecords()));
   }
 
   @Override
-  public OResultBinary loadRecordBinary(final ORID iRid, final ORecord iRecord, final String iFetchPlan, final boolean ignoreCache) {
+  public OResultBinary loadRecordBinary(final ORID iRid, final String iFetchPlan, final boolean ignoreCache, int recordVersion) {
     if (iRid.isNew())
       return null;
 
-    return database.executeReadRecordFetchBinary((ORecordId) iRid, iRecord, -1, iFetchPlan, ignoreCache, !ignoreCache, false,
+    return database.executeReadRecordBinary((ORecordId) iRid, recordVersion, iFetchPlan, ignoreCache, !ignoreCache, false,
         OStorage.LOCKING_STRATEGY.NONE, new SimpleRecordReader(database.isPrefetchRecords()));
   }
   
