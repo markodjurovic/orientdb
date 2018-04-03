@@ -391,9 +391,9 @@ public class OResultInternalBinary implements OResult {
     this.element = element.getRecordBinary();    
   }
   
-  public void setElement(OIdentifiable element) {
-    this.element = element.getRecordBinary();    
-  }
+//  public void setElement(OIdentifiable element) {
+//    this.element = element.getRecordBinary();    
+//  }
 
   @Override
   public String toString() {

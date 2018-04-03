@@ -1250,7 +1250,7 @@ public class OSelectExecutionPlanner {
         throw new OCommandExecutionException("Index " + indexName + " does not allow iteration on values");
       }
       result.chain(new FetchFromIndexValuesStep(index, true, ctx, profilingEnabled));
-      result.chain(new GetValueFromIndexEntryStep(ctx, filterClusterIds, profilingEnabled));
+      result.chain(new GetValueFromIndexEntryStepBinary(ctx, filterClusterIds, profilingEnabled));
 
       break;
     case VALUESDESC:
@@ -1258,7 +1258,7 @@ public class OSelectExecutionPlanner {
         throw new OCommandExecutionException("Index " + indexName + " does not allow iteration on values");
       }
       result.chain(new FetchFromIndexValuesStep(index, false, ctx, profilingEnabled));
-      result.chain(new GetValueFromIndexEntryStep(ctx, filterClusterIds, profilingEnabled));
+      result.chain(new GetValueFromIndexEntryStepBinary(ctx, filterClusterIds, profilingEnabled));
       break;
     }
   }
@@ -1481,7 +1481,7 @@ public class OSelectExecutionPlanner {
             filterClusterIds = filterClusters.stream().map(name -> ctx.getDatabase().getClusterIdByName(name)).mapToInt(i -> i)
                 .toArray();
           }
-          subPlan.chain(new GetValueFromIndexEntryStep(ctx, filterClusterIds, profilingEnabled));
+          subPlan.chain(new GetValueFromIndexEntryStepBinary(ctx, filterClusterIds, profilingEnabled));
           if (requiresMultipleIndexLookups(bestIndex.keyCondition)) {
             subPlan.chain(new DistinctExecutionStep(ctx, profilingEnabled));
           }
@@ -1635,7 +1635,7 @@ public class OSelectExecutionPlanner {
           filterClusterIds = filterClusters.stream().map(name -> ctx.getDatabase().getClusterIdByName(name)).mapToInt(i -> i)
               .toArray();
         }
-        plan.chain(new GetValueFromIndexEntryStep(ctx, filterClusterIds, profilingEnabled));
+        plan.chain(new GetValueFromIndexEntryStepBinary(ctx, filterClusterIds, profilingEnabled));
         if (info.serverToClusters.size() == 1) {
           info.orderApplied = true;
         }
@@ -1777,7 +1777,7 @@ public class OSelectExecutionPlanner {
         filterClusterIds = filterClusters.stream().map(name -> ctx.getDatabase().getClusterIdByName(name)).mapToInt(i -> i)
             .toArray();
       }
-      result.add(new GetValueFromIndexEntryStep(ctx, filterClusterIds, profilingEnabled));
+      result.add(new GetValueFromIndexEntryStepBinary(ctx, filterClusterIds, profilingEnabled));
       if (requiresMultipleIndexLookups(desc.keyCondition)) {
         result.add(new DistinctExecutionStep(ctx, profilingEnabled));
       }
@@ -1894,7 +1894,7 @@ public class OSelectExecutionPlanner {
         filterClusterIds = filterClusters.stream().map(name -> ctx.getDatabase().getClusterIdByName(name)).mapToInt(i -> i)
             .toArray();
       }
-      subPlan.chain(new GetValueFromIndexEntryStep(ctx, filterClusterIds, profilingEnabled));
+      subPlan.chain(new GetValueFromIndexEntryStepBinary(ctx, filterClusterIds, profilingEnabled));
       if (requiresMultipleIndexLookups(desc.keyCondition)) {
         subPlan.chain(new DistinctExecutionStep(ctx, profilingEnabled));
       }

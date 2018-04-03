@@ -340,7 +340,7 @@ public class ORecordId implements ORID {
       throw new ODatabaseException(
           "No database found in current thread local space. If you manually control databases over threads assure to set the current database before to use it by calling: ODatabaseRecordThreadLocal.instance().set(db);");
 
-    return db.load(this);
+    return db.loadBinary(this);
   }
 
   private void checkClusterLimits() {

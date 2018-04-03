@@ -183,6 +183,6 @@ public class GetValueFromIndexEntryStepBinary extends AbstractExecutionStep {
 
   @Override
   public OExecutionStep copy(OCommandContext ctx) {
-    return new GetValueFromIndexEntryStep(ctx, this.filterClusterIds, this.profilingEnabled);
+    return new GetValueFromIndexEntryStepBinary(ctx, this.filterClusterIds, this.profilingEnabled);
   }
 }
