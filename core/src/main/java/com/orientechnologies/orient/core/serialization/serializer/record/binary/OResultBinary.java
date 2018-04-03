@@ -39,13 +39,16 @@ public class OResultBinary implements OResult{
   private final int offset;
   private final int serializerVersion;
   private final int fieldLength;
+  private final boolean embedded;
   
-  public OResultBinary(byte[] bytes, int offset, int fieldLength, int serializerVersion, ORID rid){
+  public OResultBinary(byte[] bytes, int offset, int fieldLength, int serializerVersion, ORID rid,
+          boolean embedded){
     this.bytes = bytes;
     this.serializerVersion = serializerVersion;
     this.offset = offset;
     this.fieldLength = fieldLength;
     this.id = rid;
+    this.embedded = embedded;
   }
 
   public int getFieldLength() {
@@ -74,22 +77,39 @@ public class OResultBinary implements OResult{
   
   @Override
   public <T> T getProperty(String name) {
-    return (T)ORecordSerializerBinary.INSTANCE.deserializeFieldFromEmbedded(bytes, offset, name, serializerVersion);
+    if (embedded)
+      return ORecordSerializerBinary.INSTANCE.deserializeFieldFromEmbedded(bytes, offset, name, serializerVersion);
+    else
+      return ORecordSerializerBinary.INSTANCE.deserializeFieldFromRoot(bytes, name);
   }
 
   @Override
   public OElement getElementProperty(String name) {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    Object result = getProperty(name);
+    
+    if (result instanceof OResult) {
+      result = ((OResult) result).getRecord().orElse(null);
+    }
+
+    if (result instanceof ORID) {
+      result = ((ORID) result).getRecord();
+    }
+
+    return result instanceof OElement ? (OElement) result : null;
   }
 
   @Override
   public OVertex getVertexProperty(String name) {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    OElement result = getElementProperty(name);
+    
+    return result instanceof OElement ? ((OElement) result).asVertex().orElse(null) : null;
   }
 
   @Override
   public OEdge getEdgeProperty(String name) {
-    throw new UnsupportedOperationException("Not supported yet.");
+    OElement result = getElementProperty(name);
+    
+    return result instanceof OElement ? ((OElement) result).asEdge().orElse(null) : null;
   }
 
   @Override
@@ -99,7 +119,11 @@ public class OResultBinary implements OResult{
 
   @Override
   public Set<String> getPropertyNames() {
-    String[] fields = ORecordSerializerBinary.INSTANCE.getFieldNamesEmbedded(new ODocument(), bytes, offset, serializerVersion);
+    String[] fields;
+    if (embedded)
+      fields = ORecordSerializerBinary.INSTANCE.getFieldNamesEmbedded(new ODocument(), bytes, offset, serializerVersion);
+    else
+      fields = ORecordSerializerBinary.INSTANCE.getFieldNamesRoot(new ODocument(), bytes);
     return new HashSet<>(Arrays.asList(fields));
   }
 
@@ -155,7 +179,8 @@ public class OResultBinary implements OResult{
 
   @Override
   public boolean hasProperty(String varName) {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    //TODO make specialized method which will return on property name found
+    return getPropertyNames().contains(varName);
   }
   
   private ODocument toDocument(){

@@ -575,7 +575,7 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
     List<RecordInfo> fieldsInfo = getPositionsFromEmbeddedCollection(bytes, serializerVersion);
     for (RecordInfo fieldInfo : fieldsInfo){
       if (fieldInfo.fieldType.isEmbedded()){
-        OResultBinary result = new OResultBinary(bytes.bytes, fieldInfo.fieldStartOffset, fieldInfo.fieldLength, serializerVersion, null);
+        OResultBinary result = new OResultBinary(bytes.bytes, fieldInfo.fieldStartOffset, fieldInfo.fieldLength, serializerVersion, null, true);
         retVal.add(result);
       }
       else{
@@ -597,7 +597,7 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
       String key = recordInfo.key;
       Object value;
       if (recordInfo.fieldType.isEmbedded()){
-        value = new OResultBinary(bytes.bytes, recordInfo.fieldStartOffset, recordInfo.fieldLength, serializerVersion, null);
+        value = new OResultBinary(bytes.bytes, recordInfo.fieldStartOffset, recordInfo.fieldLength, serializerVersion, null, true);
       }
       else{
         int currentOffset = bytes.offset;
@@ -612,7 +612,7 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
   
   protected OResultBinary deserializeEmbeddedAsBytes(final BytesContainer bytes, int valueLength, int serializerVersion){
     int startOffset = bytes.offset;            
-    return new OResultBinary(bytes.bytes, startOffset, valueLength, serializerVersion, null);
+    return new OResultBinary(bytes.bytes, startOffset, valueLength, serializerVersion, null, true);
   }  
     
   private Object deserializeValue(final BytesContainer bytes, final OType type, final ODocument ownerDocument, boolean embeddedAsDocument, 
@@ -748,7 +748,7 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
             value = stream;
         }
         else{
-          OResultBinary retVal = new OResultBinary(bytesRepresentation, 0, bytesRepresentation.length, serializerVersion, null);
+          OResultBinary retVal = new OResultBinary(bytesRepresentation, 0, bytesRepresentation.length, serializerVersion, null, true);
           return retVal;
         }
       } catch (Exception e) {

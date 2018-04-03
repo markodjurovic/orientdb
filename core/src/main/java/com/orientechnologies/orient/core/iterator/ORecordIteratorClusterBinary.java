@@ -293,7 +293,7 @@ public class ORecordIteratorClusterBinary implements Iterator<OResultBinary>{
         ORecord rec = txEntries.get(currentTxEntryPosition).getRecord();
         ORecordSerializerBinary serializer = new ORecordSerializerBinary();
         byte[] stream = serializer.toStream(rec, false);
-        return new OResultBinary(stream, 0, stream.length, serializer.getCurrentVersion(), rec.getIdentity());        
+        return new OResultBinary(stream, 0, stream.length, serializer.getCurrentVersion(), rec.getIdentity(), false);        
       }
     }
     return null;

@@ -1364,7 +1364,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
           ODocumentInternal.checkClass((ODocument) record, this);
         ORecordSerializerBinary serializer = new ORecordSerializerBinary();
         byte[] serialized = serializer.toStream(record, false);
-        return new OResultBinary(serialized, 0, serialized.length, serializer.getCurrentVersion(), rid);
+        return new OResultBinary(serialized, 0, serialized.length, serializer.getCurrentVersion(), rid, false);
       }
 
       final ORawBuffer recordBuffer;
@@ -1382,7 +1382,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       if (recordBuffer == null)
         return null;      
 
-      OResultBinary res = new OResultBinary(recordBuffer.buffer, 0, recordBuffer.buffer.length, detectedRecordSerializerVersion, rid);
+      OResultBinary res = new OResultBinary(recordBuffer.buffer, 0, recordBuffer.buffer.length, detectedRecordSerializerVersion, rid, false);
       
       if (ORecordVersionHelper.isTombstone(recordBuffer.version))
         return res;      
