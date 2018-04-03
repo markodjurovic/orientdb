@@ -42,6 +42,7 @@ public class OResultInternal implements OResult {
     content.remove(name);
   }
 
+  @Override
   public <T> T getProperty(String name) {
     T result = null;
     if (content.containsKey(name)) {

@@ -169,8 +169,9 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract impl
   /**
    * Called by class iterator.
    */
+  @Override
   public List<ORecordOperation> getNewRecordEntriesByClass(final OClass iClass, final boolean iPolymorphic) {
-    final List<ORecordOperation> result = new ArrayList<ORecordOperation>();
+    final List<ORecordOperation> result = new ArrayList<>();
 
     if (iClass == null)
       // RETURN ALL THE RECORDS

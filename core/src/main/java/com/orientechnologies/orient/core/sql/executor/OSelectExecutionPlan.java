@@ -15,7 +15,7 @@ public class OSelectExecutionPlan implements OInternalExecutionPlan {
 
   private String location;
 
-  private OCommandContext ctx;
+  private final OCommandContext ctx;
 
   protected List<OExecutionStepInternal> steps = new ArrayList<>();
 
@@ -95,6 +95,7 @@ public class OSelectExecutionPlan implements OInternalExecutionPlan {
     return 0l;
   }
 
+  @Override
   public OResult serialize() {
     OResultInternal result = new OResultInternal();
     result.setProperty("type", "QueryExecutionPlan");
@@ -105,6 +106,7 @@ public class OSelectExecutionPlan implements OInternalExecutionPlan {
     return result;
   }
 
+  @Override
   public void deserialize(OResult serializedExecutionPlan) {
     List<OResult> serializedSteps = serializedExecutionPlan.getProperty("steps");
     for (OResult serializedStep : serializedSteps) {

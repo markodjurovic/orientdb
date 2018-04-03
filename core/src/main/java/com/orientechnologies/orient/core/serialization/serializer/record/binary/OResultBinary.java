@@ -41,6 +41,8 @@ public class OResultBinary implements OResult{
   private final int fieldLength;
   private final boolean embedded;
   
+  private ODocument doc = null;
+  
   public OResultBinary(byte[] bytes, int offset, int fieldLength, int serializerVersion, ORID rid,
           boolean embedded){
     this.bytes = bytes;
@@ -184,7 +186,10 @@ public class OResultBinary implements OResult{
   }
   
   private ODocument toDocument(){
-    ODocument doc = new ODocument();
+    if (doc != null)
+      return doc;
+    
+    doc = new ODocument();
     ORecordSerializerBinary.INSTANCE.fromStream(bytes, doc, null);
     return doc;
   }
