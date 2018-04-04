@@ -1387,10 +1387,10 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       if (ORecordVersionHelper.isTombstone(recordBuffer.version))
         return res;      
       
-      if (callbackHooksBinary(ORecordHook.TYPE.BEFORE_READ, res) == ORecordHook.RESULT.SKIP)
-        return null;      
-
-      callbackHooksBinary(ORecordHook.TYPE.AFTER_READ, res);
+//      if (callbackHooksBinary(ORecordHook.TYPE.BEFORE_READ, res) == ORecordHook.RESULT.SKIP)
+//        return null;      
+//
+//      callbackHooksBinary(ORecordHook.TYPE.AFTER_READ, res);
 
       if (iUpdateCache){
         ORecord rec = res.getRecord().get();

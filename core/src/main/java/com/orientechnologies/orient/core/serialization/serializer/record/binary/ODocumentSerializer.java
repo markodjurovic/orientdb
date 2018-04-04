@@ -53,6 +53,7 @@ public interface ODocumentSerializer {
    * @param reference TODO
    */
   String[] getFieldNames(ODocument reference, BytesContainer iBytes, boolean readClassName);
+  boolean isContainField(BytesContainer bytes, final String fieldName, final boolean readClassName);
   
   boolean isSerializingClassNameByDefault();
   boolean isSerializingClassNameForEmbedded();

@@ -336,6 +336,43 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
 
     return result.toArray(new String[result.size()]);
   }
+  
+  @Override
+  public boolean isContainField(BytesContainer bytes, final String fieldName, boolean readClassName){
+    // SKIP CLASS NAME
+    final int classNameLen = OVarIntSerializer.readAsInteger(bytes);
+    bytes.skip(classNameLen);    
+    
+    while (true) {      
+      final int len = OVarIntSerializer.readAsInteger(bytes);
+      if (len == 0) {
+        // SCAN COMPLETED
+        break;
+      } else if (len > 0) {
+        // PARSE FIELD NAME
+        String localFieldName = stringFromBytes(bytes.bytes, bytes.offset, len).intern();
+        if (localFieldName.equals(fieldName))
+          return true;
+
+        // SKIP THE REST
+        bytes.skip(len + OIntegerSerializer.INT_SIZE + 1);
+      } else {
+        // LOAD GLOBAL PROPERTY BY ID
+        final int id = (len * -1) - 1;
+        OGlobalProperty prop = ODocumentInternal.getGlobalPropertyById(new ODocument(), id);
+        if (prop == null) {
+          throw new OSerializationException("Missing property definition for property id '" + id + "'");
+        }
+        if (prop.getName().equals(fieldName))
+          return true;
+
+        // SKIP THE REST
+        bytes.skip(OIntegerSerializer.INT_SIZE + (prop.getType() != OType.ANY ? 0 : 1));
+      }
+    }
+
+    return false;
+  }
 
   @Override
   public void serializeWithClassName(final ODocument document, final BytesContainer bytes, final boolean iClassOnly){
@@ -1210,12 +1247,30 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
   
   private int getEmbeddedFieldSize(BytesContainer bytes, int currentFieldDataPos, 
           int serializerVersion, OType type){
+    
     int startOffset = bytes.offset;
-    bytes.offset = currentFieldDataPos;
-    deserializeValue(bytes, type, new ODocument(), true, -1, serializerVersion, true);
-    int fieldDataLength = bytes.offset - currentFieldDataPos;
-    bytes.offset = startOffset;  
-    return fieldDataLength;
+    try{
+      //this len has to exist, can be 0
+      int len = OVarIntSerializer.readAsInteger(bytes);
+      if (len > 0){
+        bytes.skip(len);
+        int valuePos = readInteger(bytes);
+        return valuePos - currentFieldDataPos;
+      }
+      if (len < 0){
+        final int valuePos = readInteger(bytes);
+        return valuePos - currentFieldDataPos;
+      }
+
+      bytes.offset = currentFieldDataPos;
+      deserializeValue(bytes, type, new ODocument(), true, -1, serializerVersion, true);
+      int fieldDataLength = bytes.offset - currentFieldDataPos;
+
+      return fieldDataLength;
+    }
+    finally{
+      bytes.offset = startOffset;
+    }
   }
   
   protected <RET> RET deserializeFieldTypedLoopAndReturn(BytesContainer bytes, String iFieldName, int serializerVersion){

@@ -280,6 +280,39 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
 
     return result.toArray(new String[result.size()]);
   }
+  
+  @Override
+  public boolean isContainField(BytesContainer bytes, final String fieldName, boolean readClassName){
+    final int classNameLen = OVarIntSerializer.readAsInteger(bytes);
+    bytes.skip(classNameLen);
+    
+    while (true) {      
+      final int len = OVarIntSerializer.readAsInteger(bytes);
+      if (len == 0) {
+        // SCAN COMPLETED
+        break;
+      } else if (len > 0) {
+        // PARSE FIELD NAME
+        String localFieldName = stringFromBytes(bytes.bytes, bytes.offset, len).intern();
+        if (localFieldName.equals(fieldName))
+          return true;
+
+        // SKIP THE REST
+        bytes.skip(len + OIntegerSerializer.INT_SIZE + 1);
+      } else {
+        // LOAD GLOBAL PROPERTY BY ID
+        final int id = (len * -1) - 1;
+        OGlobalProperty prop = ODocumentInternal.getGlobalPropertyById(new ODocument(), id);
+        if (prop.getName().equals(fieldName))
+          return true;
+
+        // SKIP THE REST
+        bytes.skip(OIntegerSerializer.INT_SIZE + (prop.getType() != OType.ANY ? 0 : 1));
+      }
+    }
+
+    return false;
+  }
 
   protected OClass serializeClass(final ODocument document, final BytesContainer bytes) {
     final OClass clazz = ODocumentInternal.getImmutableSchemaClass(document);

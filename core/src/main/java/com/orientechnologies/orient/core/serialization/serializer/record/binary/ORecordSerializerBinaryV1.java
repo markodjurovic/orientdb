@@ -371,6 +371,45 @@ public class ORecordSerializerBinaryV1 extends ORecordSerializerBinaryV0{
 
    return result.toArray(new String[result.size()]);
   }
+  
+  @Override
+  public boolean isContainField(BytesContainer bytes, final String fieldName, boolean readClassName){
+    // SKIP CLASS NAME
+    if (readClassName){
+      final int classNameLen = OVarIntSerializer.readAsInteger(bytes);
+      bytes.skip(classNameLen);
+    }    
+    
+    while (true) {      
+      final int len = OVarIntSerializer.readAsInteger(bytes);
+      if (len == 0) {
+        // SCAN COMPLETED
+        break;
+      } else if (len > 0) {
+        // PARSE FIELD NAME
+        String localFieldName = stringFromBytes(bytes.bytes, bytes.offset, len).intern();
+        if (localFieldName.equals(fieldName))
+          return true;
+
+        // SKIP THE REST
+        bytes.skip(len + OIntegerSerializer.INT_SIZE + 1);
+      } else {
+        // LOAD GLOBAL PROPERTY BY ID
+        final int id = (len * -1) - 1;
+        OGlobalProperty prop = ODocumentInternal.getGlobalPropertyById(new ODocument(), id);
+        if (prop == null) {
+          throw new OSerializationException("Missing property definition for property id '" + id + "'");
+        }
+        if (prop.getName().equals(fieldName))
+          return true;
+
+        // SKIP THE REST
+        bytes.skip(OIntegerSerializer.INT_SIZE + (prop.getType() != OType.ANY ? 0 : 1));
+      }
+    }
+
+    return false;
+  }
 
   private int serializeAllocateSpace(final BytesContainer bytes,
           final Entry<String, ODocumentEntry> values[], final Map<String, OProperty> props,

@@ -15,6 +15,7 @@
  */
 package com.orientechnologies.orient.core.serialization.serializer.record.binary;
 
+import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
@@ -121,6 +122,9 @@ public class OResultBinary implements OResult{
 
   @Override
   public Set<String> getPropertyNames() {
+    if (doc != null)
+      return doc.getPropertyNames();
+    
     String[] fields;
     if (embedded)
       fields = ORecordSerializerBinary.INSTANCE.getFieldNamesEmbedded(new ODocument(), bytes, offset, serializerVersion);
@@ -182,15 +186,22 @@ public class OResultBinary implements OResult{
   @Override
   public boolean hasProperty(String varName) {
     //TODO make specialized method which will return on property name found
-    return getPropertyNames().contains(varName);
+    if (doc != null){
+      return doc.hasField(varName);
+    }
+    
+    BytesContainer container = new BytesContainer(bytes, 1);
+    return ORecordSerializerBinary.INSTANCE.getSerializer(bytes[0]).isContainField(container, varName, ORecordSerializerBinary.INSTANCE.getSerializer(bytes[0]).isSerializingClassNameByDefault());
   }
   
   private ODocument toDocument(){
     if (doc != null)
       return doc;
     
-    doc = new ODocument();
+    doc = new ODocument(id);    
+    doc.setInternalStatus(ORecordElement.STATUS.LOADED);
     ORecordSerializerBinary.INSTANCE.fromStream(bytes, doc, null);
+    doc.setSource(bytes);
     return doc;
   }
   

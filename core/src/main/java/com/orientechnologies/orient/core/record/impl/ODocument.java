@@ -1688,6 +1688,10 @@ public class ODocument extends ORecordAbstract
     ODocumentEntry entry = _fields.get(iFieldName);
     return entry != null && entry.exist();
   }
+  
+  public boolean hasField(String fieldName){
+    return _fields.keySet().contains(fieldName);
+  }
 
   /**
    * Returns true if the record has some owner.

@@ -553,5 +553,9 @@ public abstract class ORecordAbstract implements ORecord {
   public OResultBinary getRecordBinary() {
     return _recordId.getRecordBinary();
   }
+  
+  public void setSource(byte[] bytes){
+    _source = bytes;
+  }
 
 }
