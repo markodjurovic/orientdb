@@ -20,22 +20,22 @@
 
 package com.orientechnologies.orient.core.cache;
 
+import com.orientechnologies.orient.core.db.record.OId;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.ORecord;
 
 /**
  * Cache implementation that uses Soft References.
  * 
  * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli-at-orientdb.com)
  */
-public class ORecordCacheSoftRefs extends OAbstractMapCache<OSoftRefsHashMap<ORID, ORecord>> implements ORecordCache {
+public class ORecordCacheSoftRefs<T extends OId> extends OAbstractMapCache<T, OSoftRefsHashMap<ORID, T>> {
 
   public ORecordCacheSoftRefs() {
-    super(new OSoftRefsHashMap<ORID, ORecord>());
+    super(new OSoftRefsHashMap<ORID, T>());
   }
 
   @Override
-  public ORecord get(final ORID rid) {
+  public T get(final ORID rid) {
     if (!isEnabled())
       return null;
 
@@ -43,14 +43,14 @@ public class ORecordCacheSoftRefs extends OAbstractMapCache<OSoftRefsHashMap<ORI
   }
 
   @Override
-  public ORecord put(final ORecord record) {
+  public T put(final T record) {
     if (!isEnabled())
       return null;
-    return cache.put(record.getIdentity(), record);
+    return cache.put(record.getIdValue(), record);
   }
 
   @Override
-  public ORecord remove(final ORID rid) {
+  public T remove(final ORID rid) {
     if (!isEnabled())
       return null;
     return cache.remove(rid);
@@ -64,6 +64,6 @@ public class ORecordCacheSoftRefs extends OAbstractMapCache<OSoftRefsHashMap<ORI
   @Override
   public void clear() {
     cache.clear();
-    cache = new OSoftRefsHashMap<ORID, ORecord>();
+    cache = new OSoftRefsHashMap<>();
   }
 }

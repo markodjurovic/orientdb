@@ -139,4 +139,9 @@ public class OPlaceholder implements OIdentifiable, OStreamable {
   public OResultBinary getRecordBinary() {
     return rid.getRecordBinary();
   }
+
+  @Override
+  public ORID getIdValue() {
+    return getIdentity();
+  }
 }

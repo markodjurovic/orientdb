@@ -24,6 +24,6 @@ package com.orientechnologies.orient.core.cache;
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 05.07.13
  */
-public interface OCacheLevelTwoLocator {
-  public ORecordCache primaryCache(final String storageName);
+public interface OCacheLevelTwoLocator<T> {
+  public OCache<T> primaryCache(final String storageName);
 }

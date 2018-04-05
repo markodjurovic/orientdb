@@ -557,5 +557,10 @@ public abstract class ORecordAbstract implements ORecord {
   public void setSource(byte[] bytes){
     _source = bytes;
   }
+  
+  @Override
+  public ORID getIdValue(){
+    return getIdentity();
+  }
 
 }

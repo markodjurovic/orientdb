@@ -560,4 +560,9 @@ public class OEdgeDelegate implements OEdge {
   public OResultBinary getRecordBinary() {
     return element.getRecordBinary();
   }
+
+  @Override
+  public ORID getIdValue() {
+    return getIdentity();
+  }
 }

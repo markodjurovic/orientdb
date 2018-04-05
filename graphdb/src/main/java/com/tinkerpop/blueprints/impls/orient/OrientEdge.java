@@ -23,6 +23,7 @@ package com.tinkerpop.blueprints.impls.orient;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
@@ -574,6 +575,11 @@ public class OrientEdge extends OrientElement implements Edge {
       throw new IllegalStateException("Wrong type found in the field '" + iFieldName + "': " + iFieldValue.getClass());
 
     return true;
+  }
+
+  @Override
+  public ORID getIdValue() {
+    return getIdentity();
   }
 
 }

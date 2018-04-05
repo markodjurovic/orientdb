@@ -20,8 +20,8 @@
 
 package com.orientechnologies.orient.core.cache;
 
+import com.orientechnologies.orient.core.db.record.OId;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.ORecord;
 
 import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;
@@ -29,41 +29,41 @@ import java.util.WeakHashMap;
 /**
  * @author Artem Orobets (enisher-at-gmail.com)
  */
-public class ORecordCacheWeakRefs extends OAbstractMapCache<WeakHashMap<ORID, WeakReference<ORecord>>> implements ORecordCache {
+public class ORecordCacheWeakRefs<T extends OId> extends OAbstractMapCache<T, WeakHashMap<ORID, WeakReference<T>>> {
 
   public ORecordCacheWeakRefs() {
-    super(new WeakHashMap<ORID, WeakReference<ORecord>>());
+    super(new WeakHashMap<ORID, WeakReference<T>>());
   }
 
   @Override
-  public ORecord get(final ORID rid) {
+  public T get(final ORID rid) {
     if (!isEnabled())
       return null;
 
-    final WeakReference<ORecord> value;
+    final WeakReference<T> value;
     value = cache.get(rid);
     return get(value);
   }
 
   @Override
-  public ORecord put(final ORecord record) {
+  public T put(final T record) {
     if (!isEnabled())
       return null;
-    final WeakReference<ORecord> value;
-    value = cache.put(record.getIdentity(), new WeakReference<ORecord>(record));
+    final WeakReference<T> value;
+    value = cache.put(record.getIdValue(), new WeakReference<T>(record));
     return get(value);
   }
 
   @Override
-  public ORecord remove(final ORID rid) {
+  public T remove(final ORID rid) {
     if (!isEnabled())
       return null;
-    final WeakReference<ORecord> value;
+    final WeakReference<T> value;
     value = cache.remove(rid);
     return get(value);
   }
 
-  private ORecord get(WeakReference<ORecord> value) {
+  private T get(WeakReference<T> value) {
     if (value == null)
       return null;
     else
@@ -72,7 +72,7 @@ public class ORecordCacheWeakRefs extends OAbstractMapCache<WeakHashMap<ORID, We
 
   @Override
   public void shutdown() {
-    cache = new WeakHashMap<ORID, WeakReference<ORecord>>();
+    cache = new WeakHashMap<>();
   }
 
   @Override

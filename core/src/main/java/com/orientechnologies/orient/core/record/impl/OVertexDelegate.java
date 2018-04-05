@@ -894,4 +894,9 @@ public class OVertexDelegate implements OVertex {
   public OResultBinary getRecordBinary() {
     return element.getRecordBinary();
   }
+
+  @Override
+  public ORID getIdValue() {
+    return getIdentity();
+  }
 }

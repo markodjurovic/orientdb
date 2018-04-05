@@ -27,7 +27,7 @@ import com.orientechnologies.common.factory.OConfigurableStatefulFactory;
  *
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
-public class OLocalRecordCacheFactoryImpl extends OConfigurableStatefulFactory<String, ORecordCache> implements OLocalRecordCacheFactory {
+public class OLocalRecordCacheFactoryImpl extends OConfigurableStatefulFactory<String, OCache> implements OLocalRecordCacheFactory {
   public OLocalRecordCacheFactoryImpl() {
     register(ORecordCacheWeakRefs.class.getName(), ORecordCacheWeakRefs.class);
     register(ORecordCacheSoftRefs.class.getName(), ORecordCacheSoftRefs.class);

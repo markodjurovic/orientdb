@@ -16,7 +16,6 @@
 package com.orientechnologies.orient.core.cache;
 
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.ORecord;
 import java.util.Collection;
 
 /**
@@ -72,7 +71,7 @@ public interface OCache<T> {
    *          record that should be cached
    * @return previous version of record
    */
-  T put(ORecord record);
+  T put(T record);
 
   /**
    * Remove record with specified identifier

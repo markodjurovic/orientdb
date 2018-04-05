@@ -29,12 +29,12 @@ import java.util.Map;
 /**
  * @author Artem Orobets (enisher-at-gmail.com)
  */
-public abstract class OAbstractMapCache<T extends Map<ORID, ?>> implements ORecordCache {
-  protected T     cache;
+public abstract class OAbstractMapCache<T1, T2 extends Map<ORID, ?>> implements OCache<T1> {
+  protected T2     cache;
 
   private boolean enabled = true;
 
-  public OAbstractMapCache(T cache) {
+  public OAbstractMapCache(T2 cache) {
     this.cache = cache;
   }
 
@@ -74,6 +74,6 @@ public abstract class OAbstractMapCache<T extends Map<ORID, ?>> implements OReco
 
   @Override
   public Collection<ORID> keys() {
-    return new ArrayList<ORID>(cache.keySet());
+    return new ArrayList<>(cache.keySet());
   }
 }

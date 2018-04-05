@@ -1208,6 +1208,10 @@ public class OrientVertex extends OrientElement implements OrientExtendedVertex 
     return result;
   }  
 
+  @Override
+  public ORID getIdValue() {
+    return getIdentity();
+  }
 
 
 }

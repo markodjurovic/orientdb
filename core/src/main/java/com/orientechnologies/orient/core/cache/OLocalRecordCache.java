@@ -33,7 +33,7 @@ import com.orientechnologies.orient.core.record.ORecordVersionHelper;
  * 
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
-public class OLocalRecordCache extends OAbstractRecordCache {
+public class OLocalRecordCache extends OAbstractRecordCache<ORecord> {
   private String CACHE_HIT;
   private String CACHE_MISS;
 

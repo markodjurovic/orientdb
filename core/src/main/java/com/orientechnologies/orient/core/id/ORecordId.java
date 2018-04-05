@@ -368,4 +368,9 @@ public class ORecordId implements ORID {
   public void setClusterPosition(long clusterPosition) {
     this.clusterPosition = clusterPosition;
   }
+  
+  @Override
+  public ORID getIdValue(){
+    return getIdentity();
+  }
 }

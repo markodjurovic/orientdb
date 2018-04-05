@@ -32,7 +32,7 @@ import com.orientechnologies.orient.core.storage.OStorage;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * 
  */
-public interface OIdentifiable extends Comparable<OIdentifiable>, Comparator<OIdentifiable> {
+public interface OIdentifiable extends Comparable<OIdentifiable>, Comparator<OIdentifiable>, OId{
   /**
    * Returns the record identity.
    * 

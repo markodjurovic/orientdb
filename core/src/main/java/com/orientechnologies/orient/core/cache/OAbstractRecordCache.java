@@ -23,7 +23,6 @@ import com.orientechnologies.common.profiler.OAbstractProfiler.OProfilerHookValu
 import com.orientechnologies.common.profiler.OProfiler.METRIC_TYPE;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.ORecord;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -34,8 +33,8 @@ import java.util.Set;
  * 
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
-public abstract class OAbstractRecordCache {
-  protected ORecordCache underlying;
+public abstract class OAbstractRecordCache<T> {
+  protected OCache<T> underlying;
   protected String profilerPrefix         = "noname";
   protected String profilerMetadataPrefix = "noname";
   protected int    excludedCluster        = -1;
@@ -46,7 +45,7 @@ public abstract class OAbstractRecordCache {
    * @param impl
    *          actual implementation of cache
    */
-  public OAbstractRecordCache(final ORecordCache impl) {
+  public OAbstractRecordCache(final OCache<T> impl) {
     underlying = impl;
   }
 
@@ -80,7 +79,7 @@ public abstract class OAbstractRecordCache {
    *          unique identifier of record
    * @return record stored in cache if any, otherwise - {@code null}
    */
-  public ORecord freeRecord(final ORID rid) {
+  public T freeRecord(final ORID rid) {
     return underlying.remove(rid);
   }
 
