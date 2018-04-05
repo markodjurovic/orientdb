@@ -130,6 +130,8 @@ public interface ORecordHook {
 
   RESULT onTrigger(TYPE iType, ORecord iRecord);
 
+  RESULT onTriggerBinary(final TYPE iType, String className);
+  
   DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode();
 
   /**

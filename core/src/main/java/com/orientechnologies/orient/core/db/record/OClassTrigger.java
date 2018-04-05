@@ -31,6 +31,7 @@ import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
@@ -174,8 +175,22 @@ public class OClassTrigger extends ODocumentHookAbstract {
       else if (func instanceof Object[])
         this.executeMethod(iDocument, (Object[]) func);
     }
-  }
+  }  
+  
+  @Override
+  public RESULT onTriggerBinary(final TYPE iType, final String className){
+    if (database.getStatus() != STATUS.OPEN)
+      return RESULT.RECORD_NOT_CHANGED;
+            
+    OImmutableClass immutableSchemaClass = getClassForName(className);
+    
+    if (immutableSchemaClass != null && immutableSchemaClass.isTriggered())
+      return super.onTriggerBinary(iType, className);
 
+    return RESULT.RECORD_NOT_CHANGED;
+  }
+  
+  @Override
   public RESULT onTrigger(final TYPE iType, final ORecord iRecord) {
     if (database.getStatus() != STATUS.OPEN)
       return RESULT.RECORD_NOT_CHANGED;

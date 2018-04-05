@@ -725,6 +725,24 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     }
   }
   
+  protected ODatabaseDocumentInternal getDatabaseIfDefinedInternal() {
+    return ODatabaseRecordThreadLocal.instance().getIfDefined();
+  }
+  
+  private String fetchClassName(ORID rid) {
+    final ODatabaseDocumentInternal database = getDatabaseIfDefinedInternal();
+    if (database != null && database.getStorageVersions() != null) {
+      
+      final OSchema schema = database.getMetadata().getImmutableSchemaSnapshot();
+      if (schema != null) {
+        OClass _clazz = schema.getClassByClusterId(rid.getClusterId());
+        if (_clazz != null)
+          return _clazz.getName();
+      }
+    }
+    return null;
+  }
+  
   public ORecordHook.RESULT callbackHooksBinary(final ORecordHook.TYPE type, final OResultBinary id) {
     if (id == null || hooks.isEmpty() || id.getId().getClusterId() == 0)
       return ORecordHook.RESULT.RECORD_NOT_CHANGED;
@@ -737,9 +755,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       return ORecordHook.RESULT.RECORD_NOT_CHANGED;
 
     try {
-      final Optional<ORecord> rec = id.getRecord();
-      if (!rec.isPresent())
-        return ORecordHook.RESULT.RECORD_NOT_CHANGED;
+//      final Optional<ORecord> rec = id.getRecord();
+//      if (!rec.isPresent())
+//        return ORecordHook.RESULT.RECORD_NOT_CHANGED;
 
       final OScenarioThreadLocal.RUN_MODE runMode = OScenarioThreadLocal.INSTANCE.getRunMode();
 
@@ -757,7 +775,8 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
             continue;
         }
 
-        final ORecordHook.RESULT res = hook.onTrigger(type, rec.get());
+        String className = fetchClassName(identity);
+        final ORecordHook.RESULT res = hook.onTriggerBinary(type, className);
 
         if (null != res)
           switch (res) {
@@ -1290,6 +1309,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   /**
    * {@inheritDoc}
    */
+  @Override
   public <RET extends ORecord> RET load(final ORecord iRecord, final String iFetchPlan, final boolean iIgnoreCache) {
     return (RET) executeReadRecord((ORecordId) iRecord.getIdentity(), iRecord, -1, iFetchPlan, iIgnoreCache, !iIgnoreCache, false,
         OStorage.LOCKING_STRATEGY.NONE, new SimpleRecordReader(prefetchRecords));
@@ -1358,7 +1378,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
               .warn(this, "You use deprecated record locking strategy: %s it may lead to deadlocks " + lockingStrategy);
           record.lock(true);
         }
-
+        
         callbackHooks(ORecordHook.TYPE.AFTER_READ, record);
         if (record instanceof ODocument)
           ODocumentInternal.checkClass((ODocument) record, this);
@@ -1422,6 +1442,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    *
    * @Internal
    */
+  @Override
   public <RET extends ORecord> RET executeReadRecord(final ORecordId rid, ORecord iRecord, final int recordVersion,
       final String fetchPlan, final boolean ignoreCache, final boolean iUpdateCache, final boolean loadTombstones,
       final OStorage.LOCKING_STRATEGY lockingStrategy, RecordReader recordReader) {

@@ -175,5 +175,10 @@ public class HookTest extends ObjectDBBaseTest {
           && ((ODocument) iRecord).getClassName().equals("Profile"))
         callbackCount += 70;
     }
+
+    @Override
+    public RESULT onTriggerBinary(TYPE iType, String className) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
   }
 }

@@ -21,7 +21,6 @@ package com.orientechnologies.orient.core.cache;
 
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.hook.ORecordHookAbstract;
 import com.orientechnologies.orient.core.record.ORecord;
 
@@ -79,5 +78,10 @@ public class OCommandCacheHook extends ORecordHookAbstract {
   @Override
   public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
     return DISTRIBUTED_EXECUTION_MODE.BOTH;
+  }
+
+  @Override
+  public RESULT onTriggerBinary(TYPE iType, String className) {
+    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
   }
 }

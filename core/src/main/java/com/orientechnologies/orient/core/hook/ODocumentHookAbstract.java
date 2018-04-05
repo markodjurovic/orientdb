@@ -20,9 +20,12 @@
 package com.orientechnologies.orient.core.hook;
 
 import com.orientechnologies.orient.core.db.ODatabase.STATUS;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
@@ -201,6 +204,96 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
   public void onRecordFinalizeDeletion(final ODocument document) {
   }
 
+  @Override
+  public RESULT onTriggerBinary(final TYPE iType, String className ) {
+    if (database.getStatus() != STATUS.OPEN)
+      return RESULT.RECORD_NOT_CHANGED;    
+
+    OImmutableClass clazz = getClassForName(className);
+    
+    if (!filterBySchemaClassBinary(clazz))
+      return RESULT.RECORD_NOT_CHANGED;
+
+    switch (iType) {
+    case BEFORE_CREATE:
+      return onRecordBeforeCreate(null);
+
+    case AFTER_CREATE:
+      onRecordAfterCreate(null);
+      break;
+
+    case CREATE_FAILED:
+      onRecordCreateFailed(null);
+      break;
+
+    case CREATE_REPLICATED:
+      onRecordCreateReplicated(null);
+      break;
+
+    case BEFORE_READ:
+      return onRecordBeforeRead(null);
+
+    case AFTER_READ:
+      onRecordAfterRead(null);
+      break;
+
+    case READ_FAILED:
+      onRecordReadFailed(null);
+      break;
+
+    case READ_REPLICATED:
+      onRecordReadReplicated(null);
+      break;
+
+    case BEFORE_UPDATE:
+      return onRecordBeforeUpdate(null);
+
+    case AFTER_UPDATE:
+      onRecordAfterUpdate(null);
+      break;
+
+    case UPDATE_FAILED:
+      onRecordUpdateFailed(null);
+      break;
+
+    case UPDATE_REPLICATED:
+      onRecordUpdateReplicated(null);
+      break;
+
+    case BEFORE_DELETE:
+      return onRecordBeforeDelete(null);
+
+    case AFTER_DELETE:
+      onRecordAfterDelete(null);
+      break;
+
+    case DELETE_FAILED:
+      onRecordDeleteFailed(null);
+      break;
+
+    case DELETE_REPLICATED:
+      onRecordDeleteReplicated(null);
+      break;
+
+    case FINALIZE_CREATION:
+      onRecordFinalizeCreation(null);
+      break;
+
+    case FINALIZE_UPDATE:
+      onRecordFinalizeUpdate(null);
+      break;
+
+    case FINALIZE_DELETION:
+      onRecordFinalizeDeletion(null);
+      break;
+
+    default:
+      throw new IllegalStateException("Hook method " + iType + " is not managed");
+    }
+
+    return RESULT.RECORD_NOT_CHANGED;
+  }
+  
   public RESULT onTrigger(final TYPE iType, final ORecord iRecord) {
     if (database.getStatus() != STATUS.OPEN)
       return RESULT.RECORD_NOT_CHANGED;
@@ -315,6 +408,31 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
     return this;
   }
 
+  protected boolean filterBySchemaClassBinary(OClass clazz) {
+    if (includeClasses == null && excludeClasses == null)
+      return true;
+    
+    if (clazz == null)
+      return false;
+
+    if (includeClasses != null) {
+      // FILTER BY CLASSES
+      for (String cls : includeClasses)
+        if (clazz.isSubClassOf(cls))
+          return true;
+      return false;
+    }
+
+    if (excludeClasses != null) {
+      // FILTER BY CLASSES
+      for (String cls : excludeClasses)
+        if (clazz.isSubClassOf(cls))
+          return false;
+    }
+
+    return true;
+  }
+  
   protected boolean filterBySchemaClass(final ODocument iDocument) {
     if (includeClasses == null && excludeClasses == null)
       return true;
@@ -339,5 +457,20 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
     }
 
     return true;
+  }
+  
+  private ODatabaseDocumentInternal getDatabaseIfDefined() {
+    return ODatabaseRecordThreadLocal.instance().getIfDefined();
+  }
+  
+  protected OImmutableClass getClassForName(String className){
+    OImmutableClass immutableSchemaClass = null;
+    final ODatabaseDocument db = getDatabaseIfDefined();
+    if (db != null) {
+      OMetadataInternal metadata = (OMetadataInternal) db.getMetadata();
+      immutableSchemaClass = (OImmutableClass) metadata.getImmutableSchemaSnapshot().getClass(className);
+    }
+    
+    return immutableSchemaClass;            
   }
 }

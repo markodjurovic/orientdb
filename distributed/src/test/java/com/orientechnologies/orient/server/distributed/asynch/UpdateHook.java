@@ -37,4 +37,9 @@ public class UpdateHook implements ORecordHook {
     return DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE;
   }
 
+  @Override
+  public RESULT onTriggerBinary(TYPE iType, String className) {
+    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+  }
+
 }

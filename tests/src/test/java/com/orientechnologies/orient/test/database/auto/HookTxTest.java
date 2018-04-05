@@ -156,6 +156,11 @@ public class HookTxTest extends ORecordHookAbstract {
       public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
         return DISTRIBUTED_EXECUTION_MODE.BOTH;
       }
+
+      @Override
+      public RESULT onTriggerBinary(TYPE iType, String className) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+      }
     });
 
     Assert.assertFalse(exc.get());
@@ -232,5 +237,10 @@ public class HookTxTest extends ORecordHookAbstract {
     if (iRecord instanceof ODocument && ((ODocument) iRecord).getClassName() != null
         && ((ODocument) iRecord).getClassName().equals("Profile"))
       callbackCount += RECORD_AFTER_DELETE;
+  }
+
+  @Override
+  public RESULT onTriggerBinary(TYPE iType, String className) {
+    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
   }
 }

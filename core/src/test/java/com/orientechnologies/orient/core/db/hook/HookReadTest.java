@@ -52,6 +52,11 @@ public class HookReadTest {
       public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
         return null;
       }
+
+      @Override
+      public ORecordHook.RESULT onTriggerBinary(ORecordHook.TYPE iType, String className) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+      }
     });
 
     database.save(new ODocument("TestClass"));

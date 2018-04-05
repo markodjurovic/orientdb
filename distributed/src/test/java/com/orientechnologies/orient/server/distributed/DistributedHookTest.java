@@ -108,6 +108,11 @@ public class DistributedHookTest extends AbstractServerClusterTest {
       afterDelete.incrementAndGet();
       OLogManager.instance().info(this, "TestHookSourceNode onRecordAfterDelete");
     }
+
+    @Override
+    public RESULT onTriggerBinary(TYPE iType, String className) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
   }
 
   public String getDatabaseName() {

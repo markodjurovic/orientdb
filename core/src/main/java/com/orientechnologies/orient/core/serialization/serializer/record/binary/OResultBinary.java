@@ -40,9 +40,7 @@ public class OResultBinary implements OResult{
   private final int offset;
   private final int serializerVersion;
   private final int fieldLength;
-  private final boolean embedded;
-  
-  private ODocument doc = null;
+  private final boolean embedded;   
   
   public OResultBinary(byte[] bytes, int offset, int fieldLength, int serializerVersion, ORID rid,
           boolean embedded){
@@ -80,10 +78,6 @@ public class OResultBinary implements OResult{
   
   @Override
   public <T> T getProperty(String name) {
-    if (doc != null){
-      return doc.field(name);
-    }
-    
     if (embedded)
       return ORecordSerializerBinary.INSTANCE.deserializeFieldFromEmbedded(bytes, offset, name, serializerVersion);
     else
@@ -126,9 +120,6 @@ public class OResultBinary implements OResult{
 
   @Override
   public Set<String> getPropertyNames() {
-    if (doc != null)
-      return doc.getPropertyNames();
-    
     String[] fields;
     if (embedded)
       fields = ORecordSerializerBinary.INSTANCE.getFieldNamesEmbedded(new ODocument(), bytes, offset, serializerVersion);
@@ -189,20 +180,13 @@ public class OResultBinary implements OResult{
 
   @Override
   public boolean hasProperty(String varName) {
-    //TODO make specialized method which will return on property name found
-    if (doc != null){
-      return doc.hasField(varName);
-    }
-    
+    //TODO make specialized method which will return on property name found    
     BytesContainer container = new BytesContainer(bytes, 1);
     return ORecordSerializerBinary.INSTANCE.getSerializer(bytes[0]).isContainField(container, varName, ORecordSerializerBinary.INSTANCE.getSerializer(bytes[0]).isSerializingClassNameByDefault());
   }
   
   private ODocument toDocument(){
-    if (doc != null)
-      return doc;
-    
-    doc = new ODocument(id);    
+    ODocument doc = new ODocument(id);    
     doc.setInternalStatus(ORecordElement.STATUS.LOADED);
     ORecordSerializerBinary.INSTANCE.fromStream(bytes, doc, null);
     doc.setSource(bytes);
