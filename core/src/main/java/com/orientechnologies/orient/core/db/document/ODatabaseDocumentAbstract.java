@@ -1382,15 +1382,15 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       if (recordBuffer == null)
         return null;      
 
-      OResultBinary res = new OResultBinary(recordBuffer.buffer, 0, recordBuffer.buffer.length, detectedRecordSerializerVersion, rid, false);
+      OResultBinary res = new OResultBinary(recordBuffer.buffer, 0, recordBuffer.buffer.length, detectedRecordSerializerVersion, rid.copy(), false);
       
       if (ORecordVersionHelper.isTombstone(recordBuffer.version))
         return res;      
       
-//      if (callbackHooksBinary(ORecordHook.TYPE.BEFORE_READ, res) == ORecordHook.RESULT.SKIP)
-//        return null;      
-//
-//      callbackHooksBinary(ORecordHook.TYPE.AFTER_READ, res);
+      if (callbackHooksBinary(ORecordHook.TYPE.BEFORE_READ, res) == ORecordHook.RESULT.SKIP)
+        return null;      
+
+      callbackHooksBinary(ORecordHook.TYPE.AFTER_READ, res);
 
       if (iUpdateCache){
         ORecord rec = res.getRecord().get();

@@ -80,6 +80,10 @@ public class OResultBinary implements OResult{
   
   @Override
   public <T> T getProperty(String name) {
+    if (doc != null){
+      return doc.field(name);
+    }
+    
     if (embedded)
       return ORecordSerializerBinary.INSTANCE.deserializeFieldFromEmbedded(bytes, offset, name, serializerVersion);
     else
