@@ -53,6 +53,8 @@ public class OLocalBinaryCache extends OAbstractRecordCache<OResultBinary>{
    *          record that should be cached
    */
   public void updateRecord(final OResultBinary record) {
+    //TODO isDirty can be related to ORID, also as tombstones
+    
     if (record.getId().getClusterId() != excludedCluster && record.getId().isValid()){// && !record.isDirty()
 //        && !ORecordVersionHelper.isTombstone(record.getVersion())) {
       if (underlying.get(record.getId()) != record)
