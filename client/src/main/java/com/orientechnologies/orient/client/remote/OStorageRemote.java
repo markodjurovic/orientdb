@@ -397,6 +397,7 @@ public class OStorageRemote extends OStorageAbstract implements OStorageProxy, O
         openRemoteDatabase();
 
         reload();
+        initPush(session);
 
         componentsFactory = new OCurrentStorageComponentsFactory(configuration);
 
@@ -1108,7 +1109,9 @@ public class OStorageRemote extends OStorageAbstract implements OStorageProxy, O
         iClusterId = defaultClusterId;
 
       if (iClusterId >= clusters.length) {
+        stateLock.releaseReadLock();
         reload();
+        stateLock.acquireReadLock();
       }
 
       return clusters[iClusterId];
@@ -1400,9 +1403,6 @@ public class OStorageRemote extends OStorageAbstract implements OStorageProxy, O
 
     OLogManager.instance().debug(this, "Client connected to %s with session id=%d", network.getServerURL(), sessionId);
 
-//    OCluster[] cl = response.getClusterIds();
-//    updateStorageInformations(cl);
-
     // READ CLUSTER CONFIGURATION
 //    updateClusterConfiguration(network.getServerURL(), response.getDistributedConfiguration());
 
@@ -1414,7 +1414,6 @@ public class OStorageRemote extends OStorageAbstract implements OStorageProxy, O
       stateLock.releaseWriteLock();
     }
 
-    initPush(session);
   }
 
   private void initPush(OStorageRemoteSession session) {
@@ -1422,7 +1421,8 @@ public class OStorageRemote extends OStorageAbstract implements OStorageProxy, O
       stateLock.acquireWriteLock();
       try {
         if (pushThread == null) {
-          pushThread = new OStorageRemotePushThread(this, getCurrentServerURL(), connectionRetryDelay);
+          pushThread = new OStorageRemotePushThread(this, getCurrentServerURL(), connectionRetryDelay,
+              configuration.getContextConfiguration().getValueAsLong(OGlobalConfiguration.NETWORK_REQUEST_TIMEOUT));
           pushThread.start();
           subscribeStorageConfiguration(session);
           subscribeDistributedConfiguration(session);
