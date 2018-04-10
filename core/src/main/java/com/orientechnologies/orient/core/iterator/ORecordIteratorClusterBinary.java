@@ -534,7 +534,7 @@ public class ORecordIteratorClusterBinary implements Iterator<OResultBinary>{
           ORecordInternal.setIdentity(iRecord, new ORecordId(current.getClusterId(), current.getClusterPosition()));
           res = lowLevelDatabase.loadBInary(iRecord, fetchPlan, false, true, iterateThroughTombstones, lockingStrategy);
         } else
-          res = lowLevelDatabase.loadBInary(current, fetchPlan, true, false, iterateThroughTombstones, lockingStrategy);
+          res = lowLevelDatabase.loadBInary(current, fetchPlan, false, true, iterateThroughTombstones, lockingStrategy);
       } catch (ODatabaseException e) {
         if (Thread.interrupted() || lowLevelDatabase.isClosed())
           // THREAD INTERRUPTED: RETURN

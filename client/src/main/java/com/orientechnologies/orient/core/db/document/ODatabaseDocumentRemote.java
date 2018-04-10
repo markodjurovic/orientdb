@@ -29,6 +29,7 @@ import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.message.ORemoteResultSet;
 import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.cache.OLocalBinaryCache;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.command.script.OCommandScriptException;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
@@ -91,6 +92,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
       unmodifiableHooks = Collections.unmodifiableMap(hooks);
 
       localCache = new OLocalRecordCache();
+      localBinaryCache = new OLocalBinaryCache();
 
       init();
 

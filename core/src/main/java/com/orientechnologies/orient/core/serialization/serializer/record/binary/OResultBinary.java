@@ -15,6 +15,7 @@
  */
 package com.orientechnologies.orient.core.serialization.serializer.record.binary;
 
+import com.orientechnologies.orient.core.db.record.OId;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.OEdge;
@@ -33,7 +34,7 @@ import java.util.Set;
  *
  * @author mdjurovi
  */
-public class OResultBinary implements OResult{
+public class OResultBinary implements OResult, OId{
 
   private ORID id;
   private final byte[] bytes;
@@ -191,6 +192,11 @@ public class OResultBinary implements OResult{
     ORecordSerializerBinary.INSTANCE.fromStream(bytes, doc, null);
     doc.setSource(bytes);
     return doc;
+  }
+
+  @Override
+  public ORID getIdValue() {
+    return getId();
   }
   
 }

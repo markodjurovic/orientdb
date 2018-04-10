@@ -21,6 +21,7 @@ package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.common.concur.ONeedRetryException;
 import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.orient.core.cache.OLocalBinaryCache;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.script.OCommandScriptException;
@@ -212,6 +213,7 @@ public interface ODatabase<T> extends OBackupable, Closeable {
    * @return Current cache.
    */
   OLocalRecordCache getLocalCache();
+  OLocalBinaryCache getLocalBinaryCache();
 
   /**
    * Returns the default cluster id. If not specified all the new entities will be stored in the default cluster.

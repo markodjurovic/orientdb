@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.db.document;
 
 import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.cache.OLocalBinaryCache;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.OCommandRequest;
@@ -1546,5 +1547,10 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   public OResultBinary loadBinary(ORID recordId) {    
     checkOpenness();
     return internal.loadBinary(recordId);  
+  }
+
+  @Override
+  public OLocalBinaryCache getLocalBinaryCache() {
+    return internal.getLocalBinaryCache();
   }
 }

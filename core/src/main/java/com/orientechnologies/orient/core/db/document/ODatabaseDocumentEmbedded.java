@@ -24,6 +24,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.cache.OCommandCacheHook;
+import com.orientechnologies.orient.core.cache.OLocalBinaryCache;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandManager;
@@ -88,6 +89,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract impleme
       unmodifiableHooks = Collections.unmodifiableMap(hooks);
 
       localCache = new OLocalRecordCache();
+      localBinaryCache = new OLocalBinaryCache();
 
       init();
 

@@ -16,7 +16,6 @@
 package com.orientechnologies.orient.core.cache;
 
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OResultBinary;
 import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;
@@ -25,7 +24,7 @@ import java.util.WeakHashMap;
  *
  * @author mdjurovi
  */
-/*public class OBinaryCacheWeakRefs extends OAbstractMapCache<WeakHashMap<ORID, WeakReference<OResultBinary>>> implements OCache<OResultBinary>{
+public class OBinaryCacheWeakRefs extends OAbstractMapCache<OResultBinary, WeakHashMap<ORID, WeakReference<OResultBinary>>>{
 
   public OBinaryCacheWeakRefs(){
     super(new WeakHashMap<ORID, WeakReference<OResultBinary>>());
@@ -39,22 +38,40 @@ import java.util.WeakHashMap;
   }
   
   @Override
-  public ORecord get(ORID rid) {
+  public OResultBinary get(ORID rid) {
     if (!isEnabled())
       return null;
     
     final WeakReference<OResultBinary> value = cache.get(rid);    
-    return get(value).getRecord().get();
+    return get(value);
   }
 
   @Override
-  public ORecord put(ORecord record) {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+  public OResultBinary put(OResultBinary record) {
+    if (!isEnabled())
+      return null;
+    final WeakReference<OResultBinary> value;
+    value = cache.put(record.getIdValue(), new WeakReference<>(record));
+    return get(value);
   }
 
   @Override
-  public ORecord remove(ORID id) {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+  public OResultBinary remove(ORID id) {
+    if (!isEnabled())
+      return null;
+    final WeakReference<OResultBinary> value;
+    value = cache.remove(id);
+    return get(value);
   }
   
-}*/
+  @Override
+  public void shutdown() {
+    cache = new WeakHashMap<>();
+  }
+
+  @Override
+  public void clear() {
+    cache.clear();
+  }
+  
+}

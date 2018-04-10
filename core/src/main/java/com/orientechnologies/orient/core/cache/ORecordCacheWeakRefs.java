@@ -20,8 +20,8 @@
 
 package com.orientechnologies.orient.core.cache;
 
-import com.orientechnologies.orient.core.db.record.OId;
 import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.record.ORecord;
 
 import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;
@@ -29,41 +29,41 @@ import java.util.WeakHashMap;
 /**
  * @author Artem Orobets (enisher-at-gmail.com)
  */
-public class ORecordCacheWeakRefs<T extends OId> extends OAbstractMapCache<T, WeakHashMap<ORID, WeakReference<T>>> {
+public class ORecordCacheWeakRefs extends OAbstractMapCache<ORecord, WeakHashMap<ORID, WeakReference<ORecord>>> {
 
   public ORecordCacheWeakRefs() {
-    super(new WeakHashMap<ORID, WeakReference<T>>());
+    super(new WeakHashMap<ORID, WeakReference<ORecord>>());
   }
 
   @Override
-  public T get(final ORID rid) {
+  public ORecord get(final ORID rid) {
     if (!isEnabled())
       return null;
 
-    final WeakReference<T> value;
+    final WeakReference<ORecord> value;
     value = cache.get(rid);
     return get(value);
   }
 
   @Override
-  public T put(final T record) {
+  public ORecord put(final ORecord record) {
     if (!isEnabled())
       return null;
-    final WeakReference<T> value;
-    value = cache.put(record.getIdValue(), new WeakReference<T>(record));
+    final WeakReference<ORecord> value;
+    value = cache.put(record.getIdValue(), new WeakReference<ORecord>(record));
     return get(value);
   }
 
   @Override
-  public T remove(final ORID rid) {
+  public ORecord remove(final ORID rid) {
     if (!isEnabled())
       return null;
-    final WeakReference<T> value;
+    final WeakReference<ORecord> value;
     value = cache.remove(rid);
     return get(value);
   }
 
-  private T get(WeakReference<T> value) {
+  private ORecord get(WeakReference<ORecord> value) {
     if (value == null)
       return null;
     else

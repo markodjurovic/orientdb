@@ -736,7 +736,7 @@ public class OObjectSerializerHelper {
           boundDocumentFields.put(iClass, f);
 
         boolean idFound = false;
-        if (f.getAnnotation(OId.class) != null) {
+        if (f.getAnnotation(com.orientechnologies.orient.core.annotation.OId.class) != null) {
           // RECORD ID
           fieldIds.put(iClass, f);
           idFound = true;

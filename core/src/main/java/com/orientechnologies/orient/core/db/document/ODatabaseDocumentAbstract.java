@@ -27,6 +27,7 @@ import com.orientechnologies.common.listener.OListenerManger;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.cache.OLocalBinaryCache;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.OCommandRequest;
@@ -100,6 +101,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   protected final Map<ORecordHook, ORecordHook.HOOK_POSITION> hooks         = new LinkedHashMap<ORecordHook, ORecordHook.HOOK_POSITION>();
   protected       boolean                                     retainRecords = true;
   protected OLocalRecordCache                localCache;
+  protected OLocalBinaryCache                localBinaryCache;
   protected OCurrentStorageComponentsFactory componentsFactory;
   protected boolean initialized = false;
   protected OTransaction currentTx;
@@ -655,6 +657,10 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   @Override
   public OLocalRecordCache getLocalCache() {
     return localCache;
+  }
+  
+  public OLocalBinaryCache getLocalBinaryCache() {
+    return localBinaryCache;
   }
 
   /**
@@ -1355,11 +1361,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
             return null;
         }
       }
-
-      if (record == null && !ignoreCache)
-        // SEARCH INTO THE CACHE
-        record = getLocalCache().findRecord(rid);
-
+      
       if (record != null) {
         OFetchHelper.checkFetchPlanValid(fetchPlan);
         if (callbackHooks(ORecordHook.TYPE.BEFORE_READ, record) == ORecordHook.RESULT.SKIP)
@@ -1378,13 +1380,27 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
               .warn(this, "You use deprecated record locking strategy: %s it may lead to deadlocks " + lockingStrategy);
           record.lock(true);
         }
-        
+
         callbackHooks(ORecordHook.TYPE.AFTER_READ, record);
         if (record instanceof ODocument)
           ODocumentInternal.checkClass((ODocument) record, this);
         ORecordSerializerBinary serializer = new ORecordSerializerBinary();
         byte[] serialized = serializer.toStream(record, false);
         return new OResultBinary(serialized, 0, serialized.length, serializer.getCurrentVersion(), rid, false);
+      }
+
+      OResultBinary binRecord = null;
+      if (binRecord == null && !ignoreCache)
+        // SEARCH INTO THE CACHE
+        binRecord = getLocalBinaryCache().findRecord(rid);
+
+      if (binRecord != null) {
+        OFetchHelper.checkFetchPlanValid(fetchPlan);
+        if (callbackHooksBinary(ORecordHook.TYPE.BEFORE_READ, binRecord) == ORecordHook.RESULT.SKIP)
+          return null;
+        
+        callbackHooksBinary(ORecordHook.TYPE.AFTER_READ, binRecord);
+        return binRecord;
       }
 
       final ORawBuffer recordBuffer;
@@ -1413,11 +1429,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       callbackHooksBinary(ORecordHook.TYPE.AFTER_READ, res);
 
       if (iUpdateCache){
-        ORecord rec = res.getRecord().get();
-
-        if (rec instanceof ODocument)
-          ODocumentInternal.checkClass((ODocument) rec, this);
-        getLocalCache().updateRecord(rec);
+        getLocalBinaryCache().updateRecord(res);
       }
 
       return res;                  
