@@ -757,6 +757,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     final int scopeOrdinal = scope.ordinal();
 
     final ORID identity = id.getId().copy();
+    String className = fetchClassName(identity);
     if (!pushInHook(identity))
       return ORecordHook.RESULT.RECORD_NOT_CHANGED;
 
@@ -780,8 +781,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
           if (hook.getDistributedExecutionMode() == ORecordHook.DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE)
             continue;
         }
-
-        String className = fetchClassName(identity);
+        
         final ORecordHook.RESULT res = hook.onTriggerBinary(type, className);
 
         if (null != res)
