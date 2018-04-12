@@ -883,6 +883,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       closeActiveQueries();
 
       localCache.shutdown();
+      localBinaryCache.shutdown();
 
       if (isClosed()) {
         status = STATUS.CLOSED;
@@ -908,6 +909,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       status = STATUS.CLOSED;
 
       localCache.clear();
+      localBinaryCache.clear();
 
       if (getStorage() != null)
         getStorage().close();
