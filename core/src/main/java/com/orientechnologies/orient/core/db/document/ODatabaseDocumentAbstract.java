@@ -1431,7 +1431,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       callbackHooksBinary(ORecordHook.TYPE.AFTER_READ, res);
 
       if (iUpdateCache){
-        getLocalBinaryCache().updateRecord(res);
+        getLocalBinaryCache().putRecord(res);
       }
 
       return res;                  

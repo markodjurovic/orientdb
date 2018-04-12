@@ -52,6 +52,13 @@ public class OLocalBinaryCache extends OAbstractRecordCache<OResultBinary>{
    * @param record
    *          record that should be cached
    */
+  
+  public void putRecord(final OResultBinary record){
+    if (record.getId().getClusterId() != excludedCluster && record.getId().isValid()){
+      underlying.put(record);
+    }
+  }
+  
   public void updateRecord(final OResultBinary record) {
     //TODO isDirty can be related to ORID, also as tombstones
     

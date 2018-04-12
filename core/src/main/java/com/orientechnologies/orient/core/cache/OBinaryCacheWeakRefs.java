@@ -51,7 +51,7 @@ public class OBinaryCacheWeakRefs extends OAbstractMapCache<OResultBinary, WeakH
     if (!isEnabled())
       return null;
     final WeakReference<OResultBinary> value;
-    value = cache.put(record.getIdValue(), new WeakReference<>(record));
+    value = cache.put(record.getIdValue().copy(), new WeakReference<>(record));
     return get(value);
   }
 

@@ -156,9 +156,19 @@ public class ORecordId implements ORID {
 
   @Override
   public int hashCode() {
-    return 31 * clusterId + 103 * (int) clusterPosition;
+    int hash = 5;
+    hash = 41 * hash + this.clusterId;
+    hash = 41 * hash + (int) (this.clusterPosition ^ (this.clusterPosition >>> 32));
+    return hash;
   }
 
+  
+//  @Override
+//  public int hashCode() {
+//    return 31 * clusterId + 103 * (int) clusterPosition;
+//  }
+
+  @Override
   public int compareTo(final OIdentifiable iOther) {
     if (iOther == this)
       return 0;
@@ -177,6 +187,7 @@ public class ORecordId implements ORID {
     return -1;
   }
 
+  @Override
   public int compare(final OIdentifiable iObj1, final OIdentifiable iObj2) {
     if (iObj1 == iObj2)
       return 0;
@@ -186,7 +197,8 @@ public class ORecordId implements ORID {
 
     return -1;
   }
-
+  
+  @Override
   public ORecordId copy() {
     return new ORecordId(clusterId, clusterPosition);
   }
