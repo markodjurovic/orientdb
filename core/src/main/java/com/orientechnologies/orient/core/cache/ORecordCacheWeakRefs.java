@@ -51,6 +51,7 @@ public class ORecordCacheWeakRefs extends OAbstractMapCache<ORecord, WeakHashMap
       return null;
     final WeakReference<ORecord> value;
     value = cache.put(record.getIdValue(), new WeakReference<ORecord>(record));
+//    Orient.instance().getProfiler().updateCounter("INSERT_INTO_CACHE", "count of into cache insertions", 1);
     return get(value);
   }
 

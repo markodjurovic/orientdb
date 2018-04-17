@@ -1392,7 +1392,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       }
 
       OResultBinary binRecord = null;
-      if (binRecord == null && !ignoreCache)
+      if (!ignoreCache)
         // SEARCH INTO THE CACHE
         binRecord = getLocalBinaryCache().findRecord(rid);
 

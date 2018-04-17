@@ -52,6 +52,7 @@ public class OBinaryCacheWeakRefs extends OAbstractMapCache<OResultBinary, WeakH
       return null;
     final WeakReference<OResultBinary> value;
     value = cache.put(record.getIdValue().copy(), new WeakReference<>(record));
+//    Orient.instance().getProfiler().updateCounter("INSERT_INTO_CACHE", "count of into cache insertions", 1);
     return get(value);
   }
 
